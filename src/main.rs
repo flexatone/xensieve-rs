@@ -24,7 +24,7 @@ fn main() {
     println!("Hello, world!");
 }
 
-#[cfg(test)]
+#[cfg(test)] // only compile when running cargo test
 mod tests {
     use super::*; // bring code in outer into scope
 
