@@ -14,6 +14,11 @@ fn gcd(mut n: u64, mut m: u64) -> u64 {
     n
 }
 
+fn lcm(a: u64, b: u64) -> u64 {
+    a * b / gcd(a, b)
+}
+
+
 
 fn main() {
     println!("Hello, world!");
@@ -50,6 +55,23 @@ mod tests {
     #[should_panic]
     fn test_gcd_e() {
         gcd(0, 3);
+    }
+
+    #[test]
+    fn test_lcm_a() {
+        assert_eq!(lcm(12, 8), 24);
+    }
+
+    #[test]
+    fn test_lcm_b() {
+        assert_eq!(lcm(3, 4), 12);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_lcm_c() {
+        // as gcd panics on 0, this does as well
+        assert_eq!(lcm(3, 0), 0);
     }
 
 }
