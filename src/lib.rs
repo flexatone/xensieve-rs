@@ -17,8 +17,14 @@ pub mod util {
     pub fn lcm(a: u64, b: u64) -> u64 {
         a * b / gcd(a, b)
     }
+
+    pub fn meziriac() -> u64 {
+        42
+    }
 }
 
+
+// NOTE: not clear how to test private library methods
 
 #[cfg(test)] // only compile when running cargo test
 mod tests {
