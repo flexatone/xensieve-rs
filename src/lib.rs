@@ -19,6 +19,7 @@ mod util {
         a * b / gcd(a, b)
     }
 
+    // This is a brute-force implementation of modular inverse. The Extended Euclidian Algorithm might be a better choice.
     fn meziriac(a: u64, b: u64) -> u64 {
         let mut g: u64 = 1;
         if b == 1 {
@@ -34,32 +35,6 @@ mod util {
             }
         }
         g
-    }
-
-    fn mod_inv(a: i64, b: i64) -> Option<i64> {
-        let (mut a, mut b) = (a, b);
-        let (mut current_inv, mut next_inv) = (0, 1);
-        let modulus = b;
-
-        if b == 1 {
-            return Some(1);
-        }
-        while a > 1 {
-            let temp_inv = current_inv - a / b * next_inv;
-            let remainder = a % b;
-            (a, b) = (b, remainder);
-            current_inv = next_inv;
-            next_inv = temp_inv;
-        }
-        if current_inv < 0 {
-            current_inv += modulus;
-        }
-        if a == 1 {
-            Some(current_inv)
-        } else {
-            // No modular inverse exists; a and b not coprime
-            None
-        }
     }
 
     #[cfg(test)] // only compile when running cargo test
@@ -121,14 +96,9 @@ mod util {
             assert_eq!(meziriac(12, 12), 0);
             assert_eq!(meziriac(3, 11), 4);
             assert_eq!(meziriac(20, 9), 5);
-            assert_eq!(meziriac(101, 13), 5);
+            assert_eq!(meziriac(101, 13), 4);
         }
 
-        #[test]
-        fn test_mod_inv_a() {
-            assert_eq!(mod_inv(3, 11), Some(10));
-            assert_eq!(mod_inv(20, 9), Some(9));
-        }
     }
 
 }
