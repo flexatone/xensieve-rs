@@ -121,6 +121,7 @@ mod util {
             assert_eq!(meziriac(12, 12), 0);
             assert_eq!(meziriac(3, 11), 4);
             assert_eq!(meziriac(20, 9), 5);
+            assert_eq!(meziriac(101, 13), 5);
         }
 
         #[test]
