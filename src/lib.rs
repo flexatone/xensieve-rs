@@ -109,17 +109,33 @@ mod util {
 pub struct Residual {
     modulus: u64,
     shift: u64,
+    invert: bool,
 }
 
+
 impl Residual {
-    pub fn from_uint(modulus: u64, shift: u64) -> Self {
+
+    pub fn from_components(modulus: u64, shift: u64, invert: bool) -> Self {
         assert!(modulus > 0);
-        Self{modulus: modulus, shift: shift}
+        let shift = shift % modulus;
+        Self{modulus: modulus, shift: shift, invert: invert}
     }
+
+    pub fn from_repr(value: &str) -> Result<Self, String> {
+        let parts: Vec<&str> = value.split('@').collect();
+        if parts.len() != 2 {
+            return Err("Input must contain one '@' character separating two numbers.".to_string());
+        }
+        let m = parts[0].parse::<u64>().map_err(|_| "Parse failure.".to_string())?;
+        let s = parts[1].parse::<u64>().map_err(|_| "Parse failure.".to_string())?;
+        Ok(Self::from_components(m, s, false))
+    }
+
 }
 
 impl fmt::Display for Residual {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}@{}", self.modulus, self.shift)
+        let n = if self.invert {String::from("-")} else {String::new()};
+        write!(f, "{}{}@{}", n, self.modulus, self.shift)
     }
 }
