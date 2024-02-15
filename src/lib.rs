@@ -1,3 +1,5 @@
+use std::fmt;
+
 
 mod util {
 
@@ -104,3 +106,20 @@ mod util {
 }
 
 
+pub struct Residual {
+    modulus: u64,
+    shift: u64,
+}
+
+impl Residual {
+    pub fn from_uint(modulus: u64, shift: u64) -> Self {
+        assert!(modulus > 0);
+        Self{modulus: modulus, shift: shift}
+    }
+}
+
+impl fmt::Display for Residual {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}@{}", self.modulus, self.shift)
+    }
+}
