@@ -104,5 +104,3 @@ mod util {
 }
 
 
-// NOTE: not clear how to test private library methods
-

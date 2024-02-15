@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - default
+  push:
+    branches:
+      - default
+  release:
+    types: published
+
+# env:
+#   CFLAGS: -Wno-error=implicit-function-declaration
+
+jobs:
+  #-----------------------------------------------------------------------------
+  test:
+    name: Test
+
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@master
+    - uses: actions-rust-lang/setup-rust-toolchain@v1
+    - run: cargo test
