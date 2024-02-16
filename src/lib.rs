@@ -1,4 +1,6 @@
 use std::fmt;
+use std::ops::Not;
+use std::cmp::Ordering;
 
 
 mod util {
@@ -38,6 +40,30 @@ mod util {
         }
         g
     }
+
+    // Intersection of two residual classes.
+    fn intersection(
+            m1: u64,
+            m2: u64,
+            mut s1: u64,
+            mut s2: u64,
+            ) -> (u64, u64) {
+        if m1 == 0 || m2 == 0 {
+            panic!("Zero moduli encountered");
+        }
+        // normalize shifts
+        s1 = s1 % m1;
+        s2 = s2 % m2;
+
+        // use common divisor
+        let d = gcd(m1, m2);
+        let c1 = m1 / d;
+        let c2 = m2 / d;
+
+
+        (0, 0)
+    }
+
 
     #[cfg(test)] // only compile when running cargo test
     mod tests {
@@ -105,7 +131,7 @@ mod util {
 
 }
 
-
+#[derive(Debug)]
 pub struct Residual {
     modulus: u64,
     shift: u64,
@@ -123,7 +149,7 @@ impl Residual {
 
     pub fn from_repr(mut value: &str) -> Result<Self, String> {
         let invert;
-        if value.starts_with('-') {
+        if value.starts_with('!') {
             invert = true;
             value = &value[1..];
         } else {
@@ -141,9 +167,42 @@ impl Residual {
 
 }
 
+
 impl fmt::Display for Residual {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let n = if self.invert {String::from("-")} else {String::new()};
+        let n = if self.invert {String::from("!")} else {String::new()};
         write!(f, "{}{}@{}", n, self.modulus, self.shift)
+    }
+}
+
+
+impl Not for Residual {
+    type Output = Self;
+
+    fn not(self) -> Self {
+        Self::from_components(self.modulus, self.shift, !self.invert)
+    }
+}
+
+
+impl PartialEq for Residual {
+    fn eq(&self, other: &Self) -> bool {
+        self.modulus == other.modulus && self.shift == other.shift && self.invert == other.invert
+    }
+}
+
+impl Eq for Residual {}
+
+impl PartialOrd for Residual {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Residual {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.modulus.cmp(&other.modulus)
+            .then_with(|| self.shift.cmp(&other.shift))
+            .then_with(|| self.invert.cmp(&other.invert))
     }
 }
