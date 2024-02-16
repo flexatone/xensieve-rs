@@ -14,34 +14,30 @@ fn test_residual_b() {
     let _r1 = Residual::from_components(0, 2, false);
 }
 
+
 #[test]
 fn test_residual_from_repr_a() {
-    let result = Residual::from_repr("3@1");
-    if let Ok(r1) = result {
-        assert_eq!(r1.to_string(), "3@1");
-    } else {
-        panic!("unexpected");
-    }
+    let r1 = Residual::from_repr("3@1").expect("");
+    assert_eq!(r1.to_string(), "3@1");
 }
 
 #[test]
 fn test_residual_from_repr_b() {
-    let result = Residual::from_repr("-3@4");
-    if let Ok(r1) = result {
-        assert_eq!(r1.to_string(), "-3@1");
-    } else {
-        panic!("unexpected");
-    }
+    let r1 = Residual::from_repr("-3@4").expect("");
+    assert_eq!(r1.to_string(), "-3@1");
 }
 
 #[test]
 fn test_residual_from_repr_c() {
-    let result = Residual::from_repr("-9@2");
-    if let Ok(r1) = result {
-        assert_eq!(r1.to_string(), "-9@2");
-    } else {
-        panic!("unexpected");
-    }
+    let r1 = Residual::from_repr("-9@2").expect("");
+    assert_eq!(r1.to_string(), "-9@2");
+}
+
+
+#[test]
+fn test_residual_from_repr_d() {
+    let r1 = Residual::from_repr("5@5").expect("");
+    assert_eq!(r1.to_string(), "5@0");
 }
 
 
