@@ -1,5 +1,5 @@
 use std::fmt;
-use std::ops::Not;
+// use std::ops::Not;
 use std::ops::BitAnd;
 // use std::ops::BitOr;
 use std::cmp::Ordering;
@@ -150,29 +150,28 @@ mod util {
 pub struct Residual {
     modulus: u64,
     shift: u64,
-    invert: bool,
 }
 
 
 impl Residual {
 
-    pub fn from_components(modulus: u64, mut shift: u64, invert: bool) -> Self {
+    pub fn from_components(modulus: u64, mut shift: u64) -> Self {
         if modulus == 0 {
             shift = 0;
         } else {
             shift %= modulus;
         }
-        Self{modulus: modulus, shift: shift, invert: invert}
+        Self{modulus: modulus, shift: shift}
     }
 
-    pub fn from_repr(mut value: &str) -> Result<Self, String> {
-        let invert;
-        if value.starts_with('!') {
-            invert = true;
-            value = &value[1..];
-        } else {
-            invert = false;
-        }
+    pub fn from_repr(value: &str) -> Result<Self, String> {
+        // let invert;
+        // if value.starts_with('!') {
+        //     invert = true;
+        //     value = &value[1..];
+        // } else {
+        //     invert = false;
+        // }
 
         let parts: Vec<&str> = value.split('@').collect();
         if parts.len() != 2 {
@@ -180,7 +179,7 @@ impl Residual {
         }
         let m = parts[0].parse::<u64>().map_err(|_| "Parse failure.".to_string())?;
         let s = parts[1].parse::<u64>().map_err(|_| "Parse failure.".to_string())?;
-        Ok(Self::from_components(m, s, invert))
+        Ok(Self::from_components(m, s))
     }
 
 }
@@ -188,41 +187,38 @@ impl Residual {
 
 impl fmt::Display for Residual {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let n = if self.invert {String::from("!")} else {String::new()};
-        write!(f, "{}{}@{}", n, self.modulus, self.shift)
+        // let n = if self.invert {String::from("!")} else {String::new()};
+        write!(f, "{}@{}", self.modulus, self.shift)
     }
 }
 
 
-impl Not for Residual {
-    type Output = Self;
+// impl Not for Residual {
+//     type Output = Self;
 
-    fn not(self) -> Self {
-        Self::from_components(self.modulus, self.shift, !self.invert)
-    }
-}
+//     fn not(self) -> Self {
+//         Self::from_components(self.modulus, self.shift, !self.invert)
+//     }
+// }
 
 impl BitAnd for Residual {
     type Output = Residual;
 
     fn bitand(self, rhs: Self) -> Self::Output {
-        if self.invert || rhs.invert {
-            panic!("cannot handle invert residual intersection");
-        }
         let (m, s) = util::intersection(
                 self.modulus,
                 rhs.modulus,
                 self.shift,
                 rhs.shift,
                 );
-        Self::from_components(m, s, false)
+        Self::from_components(m, s)
         }
 }
 
 
 impl PartialEq for Residual {
     fn eq(&self, other: &Self) -> bool {
-        self.modulus == other.modulus && self.shift == other.shift && self.invert == other.invert
+        self.modulus == other.modulus && self.shift == other.shift
     }
 }
 
@@ -238,6 +234,5 @@ impl Ord for Residual {
     fn cmp(&self, other: &Self) -> Ordering {
         self.modulus.cmp(&other.modulus)
             .then_with(|| self.shift.cmp(&other.shift))
-            .then_with(|| self.invert.cmp(&other.invert))
     }
 }
