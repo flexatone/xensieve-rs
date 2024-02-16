@@ -15,7 +15,7 @@ fn test_residual_b() {
 }
 
 #[test]
-fn test_residual_c() {
+fn test_residual_from_repr_a() {
     let result = Residual::from_repr("3@1");
     if let Ok(r1) = result {
         assert_eq!(r1.to_string(), "3@1");
@@ -23,6 +23,27 @@ fn test_residual_c() {
         panic!("unexpected");
     }
 }
+
+#[test]
+fn test_residual_from_repr_b() {
+    let result = Residual::from_repr("-3@4");
+    if let Ok(r1) = result {
+        assert_eq!(r1.to_string(), "-3@1");
+    } else {
+        panic!("unexpected");
+    }
+}
+
+#[test]
+fn test_residual_from_repr_c() {
+    let result = Residual::from_repr("-9@2");
+    if let Ok(r1) = result {
+        assert_eq!(r1.to_string(), "-9@2");
+    } else {
+        panic!("unexpected");
+    }
+}
+
 
 #[test]
 fn test_residual_to_string_a() {

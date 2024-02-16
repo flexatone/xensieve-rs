@@ -121,14 +121,22 @@ impl Residual {
         Self{modulus: modulus, shift: shift, invert: invert}
     }
 
-    pub fn from_repr(value: &str) -> Result<Self, String> {
+    pub fn from_repr(mut value: &str) -> Result<Self, String> {
+        let invert;
+        if value.starts_with('-') {
+            invert = true;
+            value = &value[1..];
+        } else {
+            invert = false;
+        }
+
         let parts: Vec<&str> = value.split('@').collect();
         if parts.len() != 2 {
             return Err("Input must contain one '@' character separating two numbers.".to_string());
         }
         let m = parts[0].parse::<u64>().map_err(|_| "Parse failure.".to_string())?;
         let s = parts[1].parse::<u64>().map_err(|_| "Parse failure.".to_string())?;
-        Ok(Self::from_components(m, s, false))
+        Ok(Self::from_components(m, s, invert))
     }
 
 }
