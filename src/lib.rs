@@ -1,5 +1,7 @@
 use std::fmt;
 use std::ops::Not;
+use std::ops::BitAnd;
+// use std::ops::BitOr;
 use std::cmp::Ordering;
 
 
@@ -19,9 +21,9 @@ mod util {
         n
     }
 
-    fn lcm(a: u64, b: u64) -> u64 {
-        a * b / gcd(a, b)
-    }
+    // fn lcm(a: u64, b: u64) -> u64 {
+    //     a * b / gcd(a, b)
+    // }
 
     // This is a brute-force implementation of modular inverse. The Extended Euclidian Algorithm might be a better choice.
     fn meziriac(a: u64, b: u64) -> u64 {
@@ -42,14 +44,15 @@ mod util {
     }
 
     // Intersection of two residual classes.
-    fn intersection(
+    pub fn intersection(
             m1: u64,
             m2: u64,
             mut s1: u64,
             mut s2: u64,
             ) -> (u64, u64) {
         if m1 == 0 || m2 == 0 {
-            panic!("Zero moduli encountered");
+            // intersection of null and anything is null
+            return (0, 0);
         }
         // normalize shifts
         s1 = s1 % m1;
@@ -57,11 +60,23 @@ mod util {
 
         // use common divisor
         let d = gcd(m1, m2);
-        let c1 = m1 / d;
-        let c2 = m2 / d;
+        let md1 = m1 / d;
+        let md2 = m2 / d;
+        let span: u64 = (s2 as i128 - s1 as i128).abs().try_into().unwrap();
 
+        if d != 1 && (span % d != 0) {
+            return (0, 0); // no intersection
+        }
+        if d != 1
+            && (span % d == 0)
+            && (s1 != s2)
+            && (md1 == md2) {
+            return (d, s1);
+        }
+        // d might be 1
+        let m = md1 * md2 * d;
+        (m, (s1 + (meziriac(md1, md2) * span * md1)) % m)
 
-        (0, 0)
     }
 
 
@@ -99,22 +114,22 @@ mod util {
             gcd(0, 3);
         }
 
-        #[test]
-        fn test_lcm_a() {
-            assert_eq!(lcm(12, 8), 24);
-        }
+        // #[test]
+        // fn test_lcm_a() {
+        //     assert_eq!(lcm(12, 8), 24);
+        // }
 
-        #[test]
-        fn test_lcm_b() {
-            assert_eq!(lcm(3, 4), 12);
-        }
+        // #[test]
+        // fn test_lcm_b() {
+        //     assert_eq!(lcm(3, 4), 12);
+        // }
 
-        #[test]
-        #[should_panic]
-        fn test_lcm_c() {
-            // as gcd panics on 0, this does as well
-            assert_eq!(lcm(3, 0), 0);
-        }
+        // #[test]
+        // #[should_panic]
+        // fn test_lcm_c() {
+        //     // as gcd panics on 0, this does as well
+        //     assert_eq!(lcm(3, 0), 0);
+        // }
 
         #[test]
         fn test_meziriac_a() {
@@ -141,9 +156,12 @@ pub struct Residual {
 
 impl Residual {
 
-    pub fn from_components(modulus: u64, shift: u64, invert: bool) -> Self {
-        assert!(modulus > 0);
-        let shift = shift % modulus;
+    pub fn from_components(modulus: u64, mut shift: u64, invert: bool) -> Self {
+        if modulus == 0 {
+            shift = 0;
+        } else {
+            shift %= modulus;
+        }
         Self{modulus: modulus, shift: shift, invert: invert}
     }
 
@@ -182,6 +200,23 @@ impl Not for Residual {
     fn not(self) -> Self {
         Self::from_components(self.modulus, self.shift, !self.invert)
     }
+}
+
+impl BitAnd for Residual {
+    type Output = Residual;
+
+    fn bitand(self, rhs: Self) -> Self::Output {
+        if self.invert || rhs.invert {
+            panic!("cannot handle invert residual intersection");
+        }
+        let (m, s) = util::intersection(
+                self.modulus,
+                rhs.modulus,
+                self.shift,
+                rhs.shift,
+                );
+        Self::from_components(m, s, false)
+        }
 }
 
 

@@ -9,9 +9,9 @@ fn test_residual_a() {
 }
 
 #[test]
-#[should_panic]
 fn test_residual_b() {
-    let _r1 = Residual::from_components(0, 2, false);
+    let r1 = Residual::from_components(0, 2, false);
+    assert_eq!(r1.to_string(), "0@0");
 }
 
 //------------------------------------------------------------------------------
@@ -38,6 +38,12 @@ fn test_residual_from_repr_c() {
 fn test_residual_from_repr_d() {
     let r1 = Residual::from_repr("5@5").expect("");
     assert_eq!(r1.to_string(), "5@0");
+}
+
+#[test]
+fn test_residual_from_repr_e() {
+    let r1 = Residual::from_repr("0@5").expect("");
+    assert_eq!(r1.to_string(), "0@0");
 }
 
 //------------------------------------------------------------------------------
