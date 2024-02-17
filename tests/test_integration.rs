@@ -192,8 +192,15 @@ fn test_residual_at_b() {
 fn test_sieve_at_a() {
     let r1 = Residual::from_components(3, 0);
     let s1 = Sieve::Residual(r1);
-    assert_eq!(s1.at(-3), true);
-    assert_eq!(s1.at(0), true);
-    assert_eq!(s1.at(3), true);
-    assert_eq!(s1.at(4), false);
+
+    //let pos = vec![-3, 0, 3, 4];
+    let pos = -3..=1;
+    let val = vec![true, false, false, true, false];
+    for (p, b) in pos.zip(val.iter()) {
+        assert_eq!(s1.at(p), *b);
+    }
+    // assert_eq!(s1.at(-3), true);
+    // assert_eq!(s1.at(0), true);
+    // assert_eq!(s1.at(3), true);
+    // assert_eq!(s1.at(4), false);
 }
