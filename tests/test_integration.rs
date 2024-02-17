@@ -1,6 +1,6 @@
 // use xenakis_sieve::util::lcm;
 use xenakis_sieve::Residual;
-
+use xenakis_sieve::Sieve;
 
 #[test]
 fn test_residual_a() {
@@ -183,4 +183,17 @@ fn test_residual_at_b() {
     assert_eq!(r1.at(1), false);
     assert_eq!(r1.at(2), false);
     assert_eq!(r1.at(3), false);
+}
+
+//------------------------------------------------------------------------------
+
+
+#[test]
+fn test_sieve_at_a() {
+    let r1 = Residual::from_components(3, 0);
+    let s1 = Sieve::Residual(r1);
+    assert_eq!(s1.at(-3), true);
+    assert_eq!(s1.at(0), true);
+    assert_eq!(s1.at(3), true);
+    assert_eq!(s1.at(4), false);
 }

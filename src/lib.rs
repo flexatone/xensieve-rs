@@ -1,7 +1,7 @@
 use std::fmt;
-// use std::ops::Not;
+use std::ops::Not;
 use std::ops::BitAnd;
-// use std::ops::BitOr;
+use std::ops::BitOr;
 use std::cmp::Ordering;
 
 
@@ -146,7 +146,8 @@ mod util {
 
 }
 
-#[derive(Debug)]
+//------------------------------------------------------------------------------
+#[derive(Clone, Debug)]
 pub struct Residual {
     modulus: u64,
     shift: u64,
@@ -239,5 +240,55 @@ impl Ord for Residual {
     fn cmp(&self, other: &Self) -> Ordering {
         self.modulus.cmp(&other.modulus)
             .then_with(|| self.shift.cmp(&other.shift))
+    }
+}
+
+//------------------------------------------------------------------------------
+#[derive(Clone, Debug)]
+pub enum Sieve {
+    Residual(Residual),
+    Intersection(Box<Sieve>, Box<Sieve>),
+    Union(Box<Sieve>, Box<Sieve>),
+    Inversion(Box<Sieve>),
+}
+
+impl BitAnd for Sieve {
+    type Output = Sieve;
+
+    fn bitand(self, rhs: Self) -> Self::Output {
+        Sieve::Intersection(Box::new(self), Box::new(rhs))
+    }
+}
+
+impl BitOr for Sieve {
+    type Output = Sieve;
+
+    fn bitor(self, rhs: Self) -> Self::Output {
+        Sieve::Union(Box::new(self), Box::new(rhs))
+    }
+}
+
+impl Not for Sieve {
+    type Output = Sieve;
+
+    fn not(self) -> Self::Output {
+        Sieve::Inversion(Box::new(self))
+    }
+}
+
+impl Sieve {
+    pub fn at(&self, value: i128) -> bool {
+        match self {
+            Sieve::Residual(residual) => residual.at(value),
+            Sieve::Intersection(lhs, rhs) => {
+                lhs.at(value) && rhs.at(value)
+            },
+            Sieve::Union(lhs, rhs) => {
+                lhs.at(value) || rhs.at(value)
+            },
+            Sieve::Inversion(residual) => {
+                !residual.at(value)
+            },
+        }
     }
 }
