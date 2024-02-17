@@ -160,47 +160,107 @@ fn test_residual_bitand_d() {
 //------------------------------------------------------------------------------
 
 #[test]
-fn test_residual_at_a() {
+fn test_residual_isin_a() {
     let r1 = Residual::from_components(3, 0);
-    assert_eq!(r1.at(-3), true);
-    assert_eq!(r1.at(-2), false);
-    assert_eq!(r1.at(-1), false);
-    assert_eq!(r1.at(0), true);
-    assert_eq!(r1.at(1), false);
-    assert_eq!(r1.at(2), false);
-    assert_eq!(r1.at(3), true);
-    assert_eq!(r1.at(4), false);
-    assert_eq!(r1.at(5), false);
+    assert_eq!(r1.isin(-3), true);
+    assert_eq!(r1.isin(-2), false);
+    assert_eq!(r1.isin(-1), false);
+    assert_eq!(r1.isin(0), true);
+    assert_eq!(r1.isin(1), false);
+    assert_eq!(r1.isin(2), false);
+    assert_eq!(r1.isin(3), true);
+    assert_eq!(r1.isin(4), false);
+    assert_eq!(r1.isin(5), false);
 
 }
 
 #[test]
-fn test_residual_at_b() {
+fn test_residual_isin_b() {
     let r1 = Residual::from_components(0, 0);
-    assert_eq!(r1.at(-2), false);
-    assert_eq!(r1.at(-1), false);
-    assert_eq!(r1.at(0), false);
-    assert_eq!(r1.at(1), false);
-    assert_eq!(r1.at(2), false);
-    assert_eq!(r1.at(3), false);
+    assert_eq!(r1.isin(-2), false);
+    assert_eq!(r1.isin(-1), false);
+    assert_eq!(r1.isin(0), false);
+    assert_eq!(r1.isin(1), false);
+    assert_eq!(r1.isin(2), false);
+    assert_eq!(r1.isin(3), false);
+}
+
+#[test]
+fn test_residual_isin_c() {
+    let r1 = Residual::from_components(3, 1);
+    assert_eq!(r1.isin(-3), false);
+    assert_eq!(r1.isin(-2), true);
+    assert_eq!(r1.isin(-1), false);
+    assert_eq!(r1.isin(0), false);
+    assert_eq!(r1.isin(1), true);
+    assert_eq!(r1.isin(2), false);
+    assert_eq!(r1.isin(3), false);
+    assert_eq!(r1.isin(4), true);
 }
 
 //------------------------------------------------------------------------------
 
-
 #[test]
-fn test_sieve_at_a() {
+fn test_sieve_isin_a() {
     let r1 = Residual::from_components(3, 0);
     let s1 = Sieve::Residual(r1);
 
-    //let pos = vec![-3, 0, 3, 4];
-    let pos = -3..=1;
+    let pos = vec![-3,   -2,    -1,    0,    1];
     let val = vec![true, false, false, true, false];
-    for (p, b) in pos.zip(val.iter()) {
-        assert_eq!(s1.at(p), *b);
+    for (p, b) in pos.iter().zip(val.iter()) {
+        assert_eq!(s1.isin(*p), *b);
     }
-    // assert_eq!(s1.at(-3), true);
-    // assert_eq!(s1.at(0), true);
-    // assert_eq!(s1.at(3), true);
-    // assert_eq!(s1.at(4), false);
+}
+
+#[test]
+fn test_sieve_isin_b() {
+    let r1 = Residual::from_components(3, 0);
+    let r2 = Residual::from_components(3, 1);
+    let s1 = Sieve::Residual(r1) | Sieve::Residual(r2);
+
+    assert_eq!(s1.isin(-2), true);
+    assert_eq!(s1.isin(-1), false);
+    assert_eq!(s1.isin(0), true);
+    assert_eq!(s1.isin(1), true);
+    assert_eq!(s1.isin(2), false);
+    assert_eq!(s1.isin(3), true);
+    assert_eq!(s1.isin(4), true);
+}
+
+#[test]
+fn test_sieve_isin_c() {
+    let r1 = Residual::from_components(5, 0);
+    let r2 = Residual::from_components(5, 1);
+    let r3 = Residual::from_components(5, 4);
+    let s1 = Sieve::Residual(r1) | Sieve::Residual(r2) | Sieve::Residual(r3);
+
+    assert_eq!(s1.isin(-2), false);
+    assert_eq!(s1.isin(-1), true);
+    assert_eq!(s1.isin(0), true);
+    assert_eq!(s1.isin(1), true);
+    assert_eq!(s1.isin(2), false);
+    assert_eq!(s1.isin(3), false);
+    assert_eq!(s1.isin(4), true);
+    assert_eq!(s1.isin(5), true);
+    assert_eq!(s1.isin(5), true);
+}
+
+#[test]
+fn test_sieve_isin_d() {
+    let r1 = Residual::from_components(5, 0);
+    let r2 = Residual::from_components(5, 1);
+    let r3 = Residual::from_components(5, 4);
+    let s1 = !(Sieve::Residual(r1) | Sieve::Residual(r2) | Sieve::Residual(r3));
+
+    assert_eq!(s1.to_string(), "!(5@0|5@1|5@4)");
+
+    assert_eq!(s1.isin(-2), true);
+    assert_eq!(s1.isin(-1), false);
+    assert_eq!(s1.isin(0), false);
+    assert_eq!(s1.isin(1), false);
+    assert_eq!(s1.isin(2), true);
+    assert_eq!(s1.isin(3), true);
+    assert_eq!(s1.isin(4), false);
+    assert_eq!(s1.isin(5), false);
+    assert_eq!(s1.isin(5), false);
 }

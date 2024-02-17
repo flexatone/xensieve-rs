@@ -141,9 +141,7 @@ mod util {
             assert_eq!(meziriac(20, 9), 5);
             assert_eq!(meziriac(101, 13), 4);
         }
-
     }
-
 }
 
 //------------------------------------------------------------------------------
@@ -183,11 +181,11 @@ impl Residual {
     }
 
     // Return `true` for integers in the set defined by this Residual.
-    pub fn at(&self, value: i128) -> bool {
-        let pos: i128 = value + self.shift as i128;
+    pub fn isin(&self, value: i128) -> bool {
         if self.modulus == 0 {
             return false;
         }
+        let pos: i128 = value - self.shift as i128;
         pos % self.modulus as i128 == 0
     }
 
@@ -276,18 +274,45 @@ impl Not for Sieve {
     }
 }
 
-impl Sieve {
-    pub fn at(&self, value: i128) -> bool {
+impl fmt::Display for Sieve {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // let n = if self.invert {String::from("!")} else {String::new()};
+        let mut s: String;
         match self {
-            Sieve::Residual(residual) => residual.at(value),
+            Sieve::Residual(residual) => {
+                s = residual.to_string();
+            },
             Sieve::Intersection(lhs, rhs) => {
-                lhs.at(value) && rhs.at(value)
+                let lhs_str = lhs.to_string();
+                let rhs_str = rhs.to_string();
+                s = format!("{lhs_str}&{rhs_str}");
             },
             Sieve::Union(lhs, rhs) => {
-                lhs.at(value) || rhs.at(value)
+                let lhs_str = lhs.to_string();
+                let rhs_str = rhs.to_string();
+                s = format!("{lhs_str}|{rhs_str}");
             },
-            Sieve::Inversion(residual) => {
-                !residual.at(value)
+            Sieve::Inversion(part) => {
+                let r = part.to_string();
+                s = format!("!({r})");
+            },
+        }
+        write!(f, "{}", s)
+    }
+}
+
+impl Sieve {
+    pub fn isin(&self, value: i128) -> bool {
+        match self {
+            Sieve::Residual(residual) => residual.isin(value),
+            Sieve::Intersection(lhs, rhs) => {
+                lhs.isin(value) && rhs.isin(value)
+            },
+            Sieve::Union(lhs, rhs) => {
+                lhs.isin(value) || rhs.isin(value)
+            },
+            Sieve::Inversion(part) => {
+                !part.isin(value)
             },
         }
     }
