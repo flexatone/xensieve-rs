@@ -152,7 +152,6 @@ pub struct Residual {
     shift: u64,
 }
 
-
 impl Residual {
 
     pub fn from_components(modulus: u64, mut shift: u64) -> Self {
@@ -182,8 +181,16 @@ impl Residual {
         Ok(Self::from_components(m, s))
     }
 
-}
+    // Return `true` for integers in the set defined by this Residual.
+    pub fn at(&self, value: i128) -> bool {
+        let pos: i128 = value + self.shift as i128;
+        if self.modulus == 0 {
+            return false;
+        }
+        pos % self.modulus as i128 == 0
+    }
 
+}
 
 impl fmt::Display for Residual {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -191,7 +198,6 @@ impl fmt::Display for Residual {
         write!(f, "{}@{}", self.modulus, self.shift)
     }
 }
-
 
 // impl Not for Residual {
 //     type Output = Self;
@@ -214,7 +220,6 @@ impl BitAnd for Residual {
         Self::from_components(m, s)
         }
 }
-
 
 impl PartialEq for Residual {
     fn eq(&self, other: &Self) -> bool {

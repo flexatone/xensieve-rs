@@ -157,3 +157,30 @@ fn test_residual_bitand_d() {
     assert_eq!((r1 & r2).to_string(), "0@0");
 }
 
+//------------------------------------------------------------------------------
+
+#[test]
+fn test_residual_at_a() {
+    let r1 = Residual::from_components(3, 0);
+    assert_eq!(r1.at(-3), true);
+    assert_eq!(r1.at(-2), false);
+    assert_eq!(r1.at(-1), false);
+    assert_eq!(r1.at(0), true);
+    assert_eq!(r1.at(1), false);
+    assert_eq!(r1.at(2), false);
+    assert_eq!(r1.at(3), true);
+    assert_eq!(r1.at(4), false);
+    assert_eq!(r1.at(5), false);
+
+}
+
+#[test]
+fn test_residual_at_b() {
+    let r1 = Residual::from_components(0, 0);
+    assert_eq!(r1.at(-2), false);
+    assert_eq!(r1.at(-1), false);
+    assert_eq!(r1.at(0), false);
+    assert_eq!(r1.at(1), false);
+    assert_eq!(r1.at(2), false);
+    assert_eq!(r1.at(3), false);
+}
