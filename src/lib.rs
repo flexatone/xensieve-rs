@@ -3,6 +3,7 @@ use std::ops::Not;
 use std::ops::BitAnd;
 use std::ops::BitOr;
 use std::cmp::Ordering;
+// use std::ops::RangeBounds;
 
 
 mod util {
@@ -277,7 +278,7 @@ impl Not for Sieve {
 impl fmt::Display for Sieve {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // let n = if self.invert {String::from("!")} else {String::new()};
-        let mut s: String;
+        let s: String;
         match self {
             Sieve::Residual(residual) => {
                 s = residual.to_string();
@@ -304,7 +305,9 @@ impl fmt::Display for Sieve {
 impl Sieve {
     pub fn isin(&self, value: i128) -> bool {
         match self {
-            Sieve::Residual(residual) => residual.isin(value),
+            Sieve::Residual(residual) => {
+                residual.isin(value)
+            },
             Sieve::Intersection(lhs, rhs) => {
                 lhs.isin(value) && rhs.isin(value)
             },
@@ -314,6 +317,41 @@ impl Sieve {
             Sieve::Inversion(part) => {
                 !part.isin(value)
             },
+        }
+    }
+
+    pub fn iter_int(&self, start: i128, end: i128) -> SieveIterator {
+        // NOTE: do not want to clone self here...
+        assert!(end >= start);
+        SieveIterator{end: end, current: start, sieve: self.clone()}
+    }
+}
+
+//------------------------------------------------------------------------------
+
+pub struct SieveIterator {
+    // start: i128,
+    end: i128,
+    current: i128,
+    sieve: Sieve,
+}
+
+impl Iterator for SieveIterator {
+    type Item = i128;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.current < self.end {
+            loop {
+                let p = self.current;
+                self.current += 1;
+                if self.sieve.isin(p) {
+                    return Some(p);
+                } else if self.current >= self.end {
+                    return None;
+                }
+            }
+        } else {
+            None
         }
     }
 }

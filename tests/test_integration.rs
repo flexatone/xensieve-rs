@@ -264,3 +264,28 @@ fn test_sieve_isin_d() {
     assert_eq!(s1.isin(5), false);
     assert_eq!(s1.isin(5), false);
 }
+
+#[test]
+fn test_sieve_iter_int_a() {
+    let r1 = Residual::from_components(5, 0);
+    let r2 = Residual::from_components(5, 1);
+    let r3 = Residual::from_components(5, 4);
+    let s1 = !(Sieve::Residual(r1) | Sieve::Residual(r2) | Sieve::Residual(r3));
+
+    let post1: Vec<_> = s1.iter_int(0, 10).collect();
+    assert_eq!(post1, vec![2, 3, 7, 8]);
+
+    let post2: Vec<_> = s1.iter_int(-10, 10).collect();
+    assert_eq!(post2, vec![-8, -7, -3, -2, 2, 3, 7, 8]);
+}
+
+#[test]
+fn test_sieve_iter_int_b() {
+    let r1 = Residual::from_components(1, 1);
+    let s1 = Sieve::Residual(r1);
+
+    let post1: Vec<_> = s1.iter_int(0, 4).collect();
+    assert_eq!(post1, vec![0, 1, 2, 3]);
+}
+
+
