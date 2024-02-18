@@ -244,56 +244,55 @@ impl Ord for Residual {
 
 //------------------------------------------------------------------------------
 #[derive(Clone, Debug)]
-pub enum Sieve {
-    Residual(Residual),
-    Intersection(Box<Sieve>, Box<Sieve>),
-    Union(Box<Sieve>, Box<Sieve>),
-    Inversion(Box<Sieve>),
+pub enum SieveNode {
+    Unit(Residual),
+    Intersection(Box<SieveNode>, Box<SieveNode>),
+    Union(Box<SieveNode>, Box<SieveNode>),
+    Inversion(Box<SieveNode>),
 }
 
-impl BitAnd for Sieve {
-    type Output = Sieve;
+impl BitAnd for SieveNode {
+    type Output = SieveNode;
 
     fn bitand(self, rhs: Self) -> Self::Output {
-        Sieve::Intersection(Box::new(self), Box::new(rhs))
+        SieveNode::Intersection(Box::new(self), Box::new(rhs))
     }
 }
 
-impl BitOr for Sieve {
-    type Output = Sieve;
+impl BitOr for SieveNode {
+    type Output = SieveNode;
 
     fn bitor(self, rhs: Self) -> Self::Output {
-        Sieve::Union(Box::new(self), Box::new(rhs))
+        SieveNode::Union(Box::new(self), Box::new(rhs))
     }
 }
 
-impl Not for Sieve {
-    type Output = Sieve;
+impl Not for SieveNode {
+    type Output = SieveNode;
 
     fn not(self) -> Self::Output {
-        Sieve::Inversion(Box::new(self))
+        SieveNode::Inversion(Box::new(self))
     }
 }
 
-impl fmt::Display for Sieve {
+impl fmt::Display for SieveNode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // let n = if self.invert {String::from("!")} else {String::new()};
         let s: String;
         match self {
-            Sieve::Residual(residual) => {
+            SieveNode::Unit(residual) => {
                 s = residual.to_string();
             },
-            Sieve::Intersection(lhs, rhs) => {
+            SieveNode::Intersection(lhs, rhs) => {
                 let lhs_str = lhs.to_string();
                 let rhs_str = rhs.to_string();
                 s = format!("{lhs_str}&{rhs_str}");
             },
-            Sieve::Union(lhs, rhs) => {
+            SieveNode::Union(lhs, rhs) => {
                 let lhs_str = lhs.to_string();
                 let rhs_str = rhs.to_string();
                 s = format!("{lhs_str}|{rhs_str}");
             },
-            Sieve::Inversion(part) => {
+            SieveNode::Inversion(part) => {
                 let r = part.to_string();
                 s = format!("!({r})");
             },
@@ -302,19 +301,19 @@ impl fmt::Display for Sieve {
     }
 }
 
-impl Sieve {
+impl SieveNode {
     pub fn isin(&self, value: i128) -> bool {
         match self {
-            Sieve::Residual(residual) => {
+            SieveNode::Unit(residual) => {
                 residual.isin(value)
             },
-            Sieve::Intersection(lhs, rhs) => {
+            SieveNode::Intersection(lhs, rhs) => {
                 lhs.isin(value) && rhs.isin(value)
             },
-            Sieve::Union(lhs, rhs) => {
+            SieveNode::Union(lhs, rhs) => {
                 lhs.isin(value) || rhs.isin(value)
             },
-            Sieve::Inversion(part) => {
+            SieveNode::Inversion(part) => {
                 !part.isin(value)
             },
         }
@@ -333,7 +332,7 @@ pub struct SieveIterator {
     // start: i128,
     end: i128,
     current: i128,
-    sieve: Sieve,
+    sieve: SieveNode,
 }
 
 impl Iterator for SieveIterator {
