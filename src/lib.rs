@@ -2,6 +2,7 @@ use std::fmt;
 use std::ops::Not;
 use std::ops::BitAnd;
 use std::ops::BitOr;
+// use std::ops::Range;
 use std::cmp::Ordering;
 // use std::ops::RangeBounds;
 
@@ -312,8 +313,8 @@ impl fmt::Display for SieveNode {
     }
 }
 
-impl SieveNode {
-
+impl SieveNode
+{
     /// Return `true` if the values is contained with this Sieve.
     ///
     pub fn isin(&self, value: i128) -> bool {
@@ -334,37 +335,51 @@ impl SieveNode {
     }
 
     /// Iterate over values contained within the sieve.
-    pub fn iter_value(&self, start: i128, end: i128) -> SieveIterateValue {
+    pub fn iter_value(&self, iterator: impl Iterator<Item = i128>) -> SieveIterateValue<impl Iterator<Item = i128>> {
         // NOTE: do not want to clone self here...
-        assert!(end >= start);
-        SieveIterateValue{end: end, current: start, sieve: self.clone()}
+        // assert!(end >= start);
+        SieveIterateValue{iterator: iterator, sieve: self.clone()}
     }
 }
 
 //------------------------------------------------------------------------------
 
-pub struct SieveIterateValue {
-    end: i128,
-    current: i128,
+pub struct SieveIterateValue<I>
+where
+    I: Iterator<Item = i128>
+{
+    iterator: I,
     sieve: SieveNode,
 }
 
-impl Iterator for SieveIterateValue {
+impl<I> Iterator for SieveIterateValue<I>
+where
+    I: Iterator<Item = i128>
+{
     type Item = i128;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.current < self.end {
-            loop {
-                let p = self.current;
-                self.current += 1;
-                if self.sieve.isin(p) {
-                    return Some(p);
-                } else if self.current >= self.end {
-                    return None;
-                }
+        while let Some(p) = self.iterator.next() {
+            if self.sieve.isin(p) {
+                return Some(p);
             }
-        } else {
-            None
         }
+        None
     }
+
+    // fn next(&mut self) -> Option<Self::Item> {
+    //     if self.current < self.end {
+    //         loop {
+    //             let p = self.current;
+    //             self.current += 1;
+    //             if self.sieve.isin(p) {
+    //                 return Some(p);
+    //             } else if self.current >= self.end {
+    //                 return None;
+    //             }
+    //         }
+    //     } else {
+    //         None
+    //     }
+    // }
 }
