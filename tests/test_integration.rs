@@ -272,10 +272,10 @@ fn test_sieve_iter_int_a() {
     let r3 = Residual::from_components(5, 4);
     let s1 = !(SieveNode::Unit(r1) | SieveNode::Unit(r2) | SieveNode::Unit(r3));
 
-    let post1: Vec<_> = s1.iter_int(0, 10).collect();
+    let post1: Vec<_> = s1.iter_value(0, 10).collect();
     assert_eq!(post1, vec![2, 3, 7, 8]);
 
-    let post2: Vec<_> = s1.iter_int(-10, 10).collect();
+    let post2: Vec<_> = s1.iter_value(-10, 10).collect();
     assert_eq!(post2, vec![-8, -7, -3, -2, 2, 3, 7, 8]);
 }
 
@@ -284,7 +284,7 @@ fn test_sieve_iter_int_b() {
     let r1 = Residual::from_components(1, 1);
     let s1 = SieveNode::Unit(r1);
 
-    let post1: Vec<_> = s1.iter_int(0, 4).collect();
+    let post1: Vec<_> = s1.iter_value(0, 4).collect();
     assert_eq!(post1, vec![0, 1, 2, 3]);
 }
 

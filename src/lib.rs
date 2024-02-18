@@ -26,7 +26,7 @@ mod util {
     //     a * b / gcd(a, b)
     // }
 
-    // This is a brute-force implementation of modular inverse. The Extended Euclidian Algorithm might be a better choice.
+    /// This is a brute-force implementation of modular inverse. The Extended Euclidian Algorithm might be a better choice.
     fn meziriac(a: u64, b: u64) -> u64 {
         let mut g: u64 = 1;
         if b == 1 {
@@ -44,7 +44,7 @@ mod util {
         g
     }
 
-    // Intersection of two residual classes.
+    /// Intersection of two residual classes.
     pub fn intersection(
             m1: u64,
             m2: u64,
@@ -146,6 +146,13 @@ mod util {
 }
 
 //------------------------------------------------------------------------------
+
+/// Container of integer values for the modulus and the shift of a Residual class.
+///
+/// # Fields
+/// * `modulus` - The modulus.
+/// * `shift` - The shift.
+///
 #[derive(Clone, Debug)]
 pub struct Residual {
     modulus: u64,
@@ -181,7 +188,8 @@ impl Residual {
         Ok(Self::from_components(m, s))
     }
 
-    // Return `true` for integers in the set defined by this Residual.
+    /// Return `true` if the values is contained with this Sieve.
+    ///
     pub fn isin(&self, value: i128) -> bool {
         if self.modulus == 0 {
             return false;
@@ -243,6 +251,9 @@ impl Ord for Residual {
 }
 
 //------------------------------------------------------------------------------
+
+/// A node in the graph of Residuals combined by logical operations.
+///
 #[derive(Clone, Debug)]
 pub enum SieveNode {
     Unit(Residual),
@@ -302,6 +313,9 @@ impl fmt::Display for SieveNode {
 }
 
 impl SieveNode {
+
+    /// Return `true` if the values is contained with this Sieve.
+    ///
     pub fn isin(&self, value: i128) -> bool {
         match self {
             SieveNode::Unit(residual) => {
@@ -319,23 +333,23 @@ impl SieveNode {
         }
     }
 
-    pub fn iter_int(&self, start: i128, end: i128) -> SieveIterator {
+    /// Iterate over values contained within the sieve.
+    pub fn iter_value(&self, start: i128, end: i128) -> SieveIterateValue {
         // NOTE: do not want to clone self here...
         assert!(end >= start);
-        SieveIterator{end: end, current: start, sieve: self.clone()}
+        SieveIterateValue{end: end, current: start, sieve: self.clone()}
     }
 }
 
 //------------------------------------------------------------------------------
 
-pub struct SieveIterator {
-    // start: i128,
+pub struct SieveIterateValue {
     end: i128,
     current: i128,
     sieve: SieveNode,
 }
 
-impl Iterator for SieveIterator {
+impl Iterator for SieveIterateValue {
     type Item = i128;
 
     fn next(&mut self) -> Option<Self::Item> {
