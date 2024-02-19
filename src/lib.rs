@@ -263,30 +263,6 @@ pub enum SieveNode {
     Inversion(Box<SieveNode>),
 }
 
-impl BitAnd for SieveNode {
-    type Output = SieveNode;
-
-    fn bitand(self, rhs: Self) -> Self::Output {
-        SieveNode::Intersection(Box::new(self), Box::new(rhs))
-    }
-}
-
-impl BitOr for SieveNode {
-    type Output = SieveNode;
-
-    fn bitor(self, rhs: Self) -> Self::Output {
-        SieveNode::Union(Box::new(self), Box::new(rhs))
-    }
-}
-
-impl Not for SieveNode {
-    type Output = SieveNode;
-
-    fn not(self) -> Self::Output {
-        SieveNode::Inversion(Box::new(self))
-    }
-}
-
 impl fmt::Display for SieveNode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s: String;
@@ -333,12 +309,69 @@ impl SieveNode
             },
         }
     }
+}
+
+//------------------------------------------------------------------------------
+
+/// A Sieve.
+///
+#[derive(Clone, Debug)]
+pub struct Sieve {
+    root: SieveNode, // should this be boxed?
+}
+
+
+impl BitAnd for Sieve {
+    type Output = Sieve;
+
+    fn bitand(self, rhs: Self) -> Self::Output {
+        Sieve{root: SieveNode::Intersection(Box::new(self.root), Box::new(rhs.root))}
+    }
+}
+
+impl BitOr for Sieve {
+    type Output = Sieve;
+
+    fn bitor(self, rhs: Self) -> Self::Output {
+        Sieve{root: SieveNode::Union(Box::new(self.root), Box::new(rhs.root))}
+    }
+}
+
+impl Not for Sieve {
+    type Output = Sieve;
+
+    fn not(self) -> Self::Output {
+        Sieve{root: SieveNode::Inversion(Box::new(self.root))}
+    }
+}
+
+impl fmt::Display for Sieve {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "Sieve{{{}}}", self.root.to_string())
+    }
+}
+
+impl Sieve {
+    /// Construct a Sieve from a Residual string representation.
+    ///
+    pub fn r(value: &str) -> Self {
+        match Residual::from_repr(value) {
+            Ok(residual) => Self{root: SieveNode::Unit(residual)},
+            Err(error) => panic!("Could not create Residual: {:?}", error),
+        }
+
+    }
+    /// Return `true` if the values is contained with this Sieve.
+    ///
+    pub fn isin(&self, value: i128) -> bool {
+        self.root.isin(value)
+    }
 
     /// Iterate over values contained within the sieve.
     pub fn iter_value(&self, iterator: impl Iterator<Item = i128>) -> SieveIterateValue<impl Iterator<Item = i128>> {
         // NOTE: do not want to clone self here...
         // assert!(end >= start);
-        SieveIterateValue{iterator: iterator, sieve: self.clone()}
+        SieveIterateValue{iterator: iterator, sieve_node: self.root.clone()}
     }
 }
 
@@ -349,7 +382,7 @@ where
     I: Iterator<Item = i128>
 {
     iterator: I,
-    sieve: SieveNode,
+    sieve_node: SieveNode,
 }
 
 impl<I> Iterator for SieveIterateValue<I>
@@ -360,26 +393,10 @@ where
 
     fn next(&mut self) -> Option<Self::Item> {
         while let Some(p) = self.iterator.next() {
-            if self.sieve.isin(p) {
+            if self.sieve_node.isin(p) {
                 return Some(p);
             }
         }
         None
     }
-
-    // fn next(&mut self) -> Option<Self::Item> {
-    //     if self.current < self.end {
-    //         loop {
-    //             let p = self.current;
-    //             self.current += 1;
-    //             if self.sieve.isin(p) {
-    //                 return Some(p);
-    //             } else if self.current >= self.end {
-    //                 return None;
-    //             }
-    //         }
-    //     } else {
-    //         None
-    //     }
-    // }
 }

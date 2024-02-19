@@ -1,6 +1,7 @@
 // use xenakis_sieve::util::lcm;
 use xenakis_sieve::Residual;
 use xenakis_sieve::SieveNode;
+use xenakis_sieve::Sieve;
 
 #[test]
 fn test_residual_a() {
@@ -216,7 +217,10 @@ fn test_sieve_isin_a() {
 fn test_sieve_isin_b() {
     let r1 = Residual::from_components(3, 0);
     let r2 = Residual::from_components(3, 1);
-    let s1 = SieveNode::Unit(r1) | SieveNode::Unit(r2);
+    let s1 = SieveNode::Union(
+            Box::new(SieveNode::Unit(r1)),
+            Box::new(SieveNode::Unit(r2)),
+        );
 
     assert_eq!(s1.isin(-2), true);
     assert_eq!(s1.isin(-1), false);
@@ -229,10 +233,7 @@ fn test_sieve_isin_b() {
 
 #[test]
 fn test_sieve_isin_c() {
-    let r1 = Residual::from_components(5, 0);
-    let r2 = Residual::from_components(5, 1);
-    let r3 = Residual::from_components(5, 4);
-    let s1 = SieveNode::Unit(r1) | SieveNode::Unit(r2) | SieveNode::Unit(r3);
+    let s1 = Sieve::r("5@0") | Sieve::r("5@1") | Sieve::r("5@4");
 
     assert_eq!(s1.isin(-2), false);
     assert_eq!(s1.isin(-1), true);
@@ -247,12 +248,9 @@ fn test_sieve_isin_c() {
 
 #[test]
 fn test_sieve_isin_d() {
-    let r1 = Residual::from_components(5, 0);
-    let r2 = Residual::from_components(5, 1);
-    let r3 = Residual::from_components(5, 4);
-    let s1 = !(SieveNode::Unit(r1) | SieveNode::Unit(r2) | SieveNode::Unit(r3));
+    let s1 = !(Sieve::r("5@0") | Sieve::r("5@1") | Sieve::r("5@4"));
 
-    assert_eq!(s1.to_string(), "!(5@0|5@1|5@4)");
+    assert_eq!(s1.to_string(), "Sieve{!(5@0|5@1|5@4)}");
 
     assert_eq!(s1.isin(-2), true);
     assert_eq!(s1.isin(-1), false);
@@ -267,10 +265,7 @@ fn test_sieve_isin_d() {
 
 #[test]
 fn test_sieve_iter_int_a() {
-    let r1 = Residual::from_components(5, 0);
-    let r2 = Residual::from_components(5, 1);
-    let r3 = Residual::from_components(5, 4);
-    let s1 = !(SieveNode::Unit(r1) | SieveNode::Unit(r2) | SieveNode::Unit(r3));
+    let s1 = !(Sieve::r("5@0") | Sieve::r("5@1") | Sieve::r("5@4"));
 
     let post1: Vec<_> = s1.iter_value(0..10).collect();
     assert_eq!(post1, vec![2, 3, 7, 8]);
@@ -281,8 +276,7 @@ fn test_sieve_iter_int_a() {
 
 #[test]
 fn test_sieve_iter_int_b() {
-    let r1 = Residual::from_components(1, 1);
-    let s1 = SieveNode::Unit(r1);
+    let s1 = Sieve::r("1@0");
 
     let post1: Vec<_> = s1.iter_value(0..4).collect();
     assert_eq!(post1, vec![0, 1, 2, 3]);
