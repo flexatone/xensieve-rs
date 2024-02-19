@@ -368,9 +368,9 @@ impl Sieve {
     }
 
     /// Iterate over values contained within the sieve.
+    /// NOTE: the iterator "impl" type shows that the parameter must implement the Iterator<Item = i128> trait.
     pub fn iter_value(&self, iterator: impl Iterator<Item = i128>) -> SieveIterateValue<impl Iterator<Item = i128>> {
         // NOTE: do not want to clone self here...
-        // assert!(end >= start);
         SieveIterateValue{iterator: iterator, sieve_node: self.root.clone()}
     }
 }
