@@ -289,7 +289,14 @@ fn test_sieve_iter_int_b() {
 
     let post2: Vec<_> = s1.iter_value((0..=2).rev()).collect();
     assert_eq!(post2, vec![2, 1, 0]);
-
 }
 
+//------------------------------------------------------------------------------
 
+#[test]
+fn test_sieve_iter_state_a() {
+    let s1 = Sieve::r("3@0") | Sieve::r("5@1");
+
+    let post1: Vec<_> = s1.iter_state(0..10).collect();
+    assert_eq!(post1, vec![true, true, false, true, false, false, true, false, false, true]);
+}

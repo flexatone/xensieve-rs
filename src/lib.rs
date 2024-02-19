@@ -2,10 +2,7 @@ use std::fmt;
 use std::ops::Not;
 use std::ops::BitAnd;
 use std::ops::BitOr;
-// use std::ops::Range;
 use std::cmp::Ordering;
-// use std::ops::RangeBounds;
-
 
 mod util {
 
@@ -320,7 +317,6 @@ pub struct Sieve {
     root: SieveNode, // should this be boxed?
 }
 
-
 impl BitAnd for Sieve {
     type Output = Sieve;
 
@@ -373,6 +369,12 @@ impl Sieve {
         // NOTE: do not want to clone self here...
         SieveIterateValue{iterator: iterator, sieve_node: self.root.clone()}
     }
+
+    /// Iterate over Boolean states contained within the sieve.
+    pub fn iter_state(&self, iterator: impl Iterator<Item = i128>) -> SieveIterateState<impl Iterator<Item = i128>> {
+        // NOTE: do not want to clone self here...
+        SieveIterateState{iterator: iterator, sieve_node: self.root.clone()}
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -398,5 +400,27 @@ where
             }
         }
         None
+    }
+}
+
+pub struct SieveIterateState<I>
+where
+    I: Iterator<Item = i128>
+{
+    iterator: I,
+    sieve_node: SieveNode,
+}
+
+impl<I> Iterator for SieveIterateState<I>
+where
+    I: Iterator<Item = i128>
+{
+    type Item = bool;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.iterator.next() {
+            Some(p) => Some(self.sieve_node.isin(p)),
+            None => None,
+        }
     }
 }
