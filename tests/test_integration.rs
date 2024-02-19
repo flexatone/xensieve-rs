@@ -293,6 +293,9 @@ fn test_sieve_iter_int_b() {
     let post2: Vec<_> = s1.iter_value((0..=4).step_by(2)).collect();
     assert_eq!(post2, vec![0, 2, 4]);
 
+    let post2: Vec<_> = s1.iter_value((0..=2).rev()).collect();
+    assert_eq!(post2, vec![2, 1, 0]);
+
 }
 
 
