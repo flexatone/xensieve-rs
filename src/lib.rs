@@ -217,8 +217,8 @@ impl Sieve {
             Ok(residual) => Self{root: SieveNode::Unit(residual)},
             Err(error) => panic!("Could not create Residual: {:?}", error),
         }
-
     }
+
     /// Return `true` if the values is contained with this Sieve.
     ///
     pub fn isin(&self, value: i128) -> bool {
@@ -234,8 +234,12 @@ impl Sieve {
 
     /// Iterate over Boolean states contained within the sieve.
     pub fn iter_state(&self, iterator: impl Iterator<Item = i128>) -> SieveIterateState<impl Iterator<Item = i128>> {
-        // NOTE: do not want to clone self here...
         SieveIterateState{iterator: iterator, sieve_node: self.root.clone()}
+    }
+
+    /// Iterate over integer intervals between values in the sieve.
+    pub fn iter_interval(&self, iterator: impl Iterator<Item = i128>) -> SieveIterateInterval<impl Iterator<Item = i128>> {
+        SieveIterateInterval{iterator: iterator, sieve_node: self.root.clone(), last: 0}
     }
 }
 
@@ -265,6 +269,8 @@ where
     }
 }
 
+//------------------------------------------------------------------------------
+
 pub struct SieveIterateState<I>
 where
     I: Iterator<Item = i128>
@@ -286,6 +292,39 @@ where
         }
     }
 }
+
+//------------------------------------------------------------------------------
+
+pub struct SieveIterateInterval<I>
+where
+    I: Iterator<Item = i128>
+{
+    iterator: I,
+    sieve_node: SieveNode,
+    last: i128,
+}
+
+impl<I> Iterator for SieveIterateInterval<I>
+where
+    I: Iterator<Item = i128>
+{
+    type Item = i128;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.iterator.next() {
+            Some(p) => {
+                if self.sieve_node.isin(p) {
+                    let post = p - self.last;
+                    self.last = p;
+                    post;
+                }
+            },
+            None => None,
+        }
+    }
+}
+
+//------------------------------------------------------------------------------
 
 #[cfg(test)] // only compile when running cargo test
 mod tests {
