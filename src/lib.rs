@@ -3,145 +3,7 @@ use std::ops::Not;
 use std::ops::BitAnd;
 use std::ops::BitOr;
 use std::cmp::Ordering;
-
-mod util {
-
-    fn gcd(mut n: u64, mut m: u64) -> u64 {
-        // not sure if assert is best way to handle this
-        assert!(n != 0 && m != 0);
-        while m != 0 {
-            if m < n {
-                let t = m;
-                m = n;
-                n = t;
-            }
-            m = m % n;
-        }
-        n
-    }
-
-    // fn lcm(a: u64, b: u64) -> u64 {
-    //     a * b / gcd(a, b)
-    // }
-
-    /// This is a brute-force implementation of modular inverse. The Extended Euclidian Algorithm might be a better choice.
-    fn meziriac(a: u64, b: u64) -> u64 {
-        let mut g: u64 = 1;
-        if b == 1 {
-            g = 1;
-        } else if a == b {
-            g = 0;
-        } else {
-            while g < u64::MAX {
-                if ((g * a) % b) == 1 {
-                    break
-                }
-                g += 1;
-            }
-        }
-        g
-    }
-
-    /// Intersection of two residual classes.
-    pub fn intersection(
-            m1: u64,
-            m2: u64,
-            mut s1: u64,
-            mut s2: u64,
-            ) -> (u64, u64) {
-        if m1 == 0 || m2 == 0 {
-            // intersection of null and anything is null
-            return (0, 0);
-        }
-        // normalize shifts
-        s1 = s1 % m1;
-        s2 = s2 % m2;
-
-        // use common divisor
-        let d = gcd(m1, m2);
-        let md1 = m1 / d;
-        let md2 = m2 / d;
-        let span: u64 = (s2 as i128 - s1 as i128).abs().try_into().unwrap();
-
-        if d != 1 && (span % d != 0) {
-            return (0, 0); // no intersection
-        }
-        if d != 1
-            && (span % d == 0)
-            && (s1 != s2)
-            && (md1 == md2) {
-            return (d, s1);
-        }
-        // d might be 1
-        let m = md1 * md2 * d;
-        (m, (s1 + (meziriac(md1, md2) * span * md1)) % m)
-
-    }
-
-
-    #[cfg(test)] // only compile when running cargo test
-    mod tests {
-        use super::*; // bring code in outer into scope
-        // use crate::util::*;
-
-        #[test]
-        fn test_gcd_a() {
-            assert_eq!(gcd(14, 15), 1);
-        }
-
-        #[test]
-        fn test_gcd_b() {
-            assert_eq!(gcd(12, 8), 4);
-        }
-
-        #[test]
-        fn test_gcd_c() {
-            let a = 2 * 3 * 5 * 11 * 17;
-            let b = 3 * 7 * 11 * 13 * 19;
-            assert_eq!(gcd(a, b), 3 * 11);
-        }
-
-        #[test]
-        #[should_panic]
-        fn test_gcd_d() {
-            gcd(12, 0);
-        }
-
-        #[test]
-        #[should_panic]
-        fn test_gcd_e() {
-            gcd(0, 3);
-        }
-
-        // #[test]
-        // fn test_lcm_a() {
-        //     assert_eq!(lcm(12, 8), 24);
-        // }
-
-        // #[test]
-        // fn test_lcm_b() {
-        //     assert_eq!(lcm(3, 4), 12);
-        // }
-
-        // #[test]
-        // #[should_panic]
-        // fn test_lcm_c() {
-        //     // as gcd panics on 0, this does as well
-        //     assert_eq!(lcm(3, 0), 0);
-        // }
-
-        #[test]
-        fn test_meziriac_a() {
-            assert_eq!(meziriac(1, 1), 1);
-            assert_eq!(meziriac(10, 1), 1);
-            assert_eq!(meziriac(10, 10), 0);
-            assert_eq!(meziriac(12, 12), 0);
-            assert_eq!(meziriac(3, 11), 4);
-            assert_eq!(meziriac(20, 9), 5);
-            assert_eq!(meziriac(101, 13), 4);
-        }
-    }
-}
+mod util;
 
 //------------------------------------------------------------------------------
 
@@ -152,14 +14,14 @@ mod util {
 /// * `shift` - The shift.
 ///
 #[derive(Clone, Debug)]
-pub struct Residual {
+pub(crate) struct Residual {
     modulus: u64,
     shift: u64,
 }
 
 impl Residual {
 
-    pub fn from_components(modulus: u64, mut shift: u64) -> Self {
+    pub(crate) fn from_components(modulus: u64, mut shift: u64) -> Self {
         if modulus == 0 {
             shift = 0;
         } else {
@@ -168,7 +30,7 @@ impl Residual {
         Self{modulus: modulus, shift: shift}
     }
 
-    pub fn from_repr(value: &str) -> Result<Self, String> {
+    pub(crate) fn from_repr(value: &str) -> Result<Self, String> {
         // let invert;
         // if value.starts_with('!') {
         //     invert = true;
@@ -188,7 +50,7 @@ impl Residual {
 
     /// Return `true` if the values is contained with this Sieve.
     ///
-    pub fn isin(&self, value: i128) -> bool {
+    pub(crate) fn isin(&self, value: i128) -> bool {
         if self.modulus == 0 {
             return false;
         }
@@ -253,7 +115,7 @@ impl Ord for Residual {
 /// A node in the graph of Residuals combined by logical operations.
 ///
 #[derive(Clone, Debug)]
-pub enum SieveNode {
+pub(crate) enum SieveNode {
     Unit(Residual),
     Intersection(Box<SieveNode>, Box<SieveNode>),
     Union(Box<SieveNode>, Box<SieveNode>),
@@ -423,4 +285,239 @@ where
             None => None,
         }
     }
+}
+
+#[cfg(test)] // only compile when running cargo test
+mod tests {
+    use super::*; // bring code in outer into scope
+    // use crate::util::*;
+
+    #[test]
+    fn test_residual_a() {
+        let r1 = Residual::from_components(3, 0);
+        assert_eq!(r1.to_string(), String::from("3@0"));
+    }
+
+    #[test]
+    fn test_residual_b() {
+        let r1 = Residual::from_components(0, 2);
+        assert_eq!(r1.to_string(), "0@0");
+    }
+
+    //------------------------------------------------------------------------------
+    #[test]
+    fn test_residual_from_repr_a() {
+        let r1 = Residual::from_repr("3@1").expect("");
+        assert_eq!(r1.to_string(), "3@1");
+    }
+
+    #[test]
+    fn test_residual_from_repr_b() {
+        let r1 = Residual::from_repr("3@4").expect("");
+        assert_eq!(r1.to_string(), "3@1");
+    }
+
+    #[test]
+    fn test_residual_from_repr_c() {
+        let r1 = Residual::from_repr("9@2").expect("");
+        assert_eq!(r1.to_string(), "9@2");
+    }
+
+
+    #[test]
+    fn test_residual_from_repr_d() {
+        let r1 = Residual::from_repr("5@5").expect("");
+        assert_eq!(r1.to_string(), "5@0");
+    }
+
+    #[test]
+    fn test_residual_from_repr_e() {
+        let r1 = Residual::from_repr("0@5").expect("");
+        assert_eq!(r1.to_string(), "0@0");
+    }
+
+    //------------------------------------------------------------------------------
+    #[test]
+    fn test_residual_to_string_a() {
+        let r1 = Residual::from_components(3, 0);
+        assert_eq!(r1.to_string(), "3@0");
+    }
+
+    #[test]
+    fn test_residual_to_string_b() {
+        let r1 = Residual::from_components(8, 3);
+        assert_eq!(r1.to_string(), "8@3");
+    }
+
+    #[test]
+    fn test_residual_to_string_c() {
+        let r1 = Residual::from_components(5, 8);
+        assert_eq!(r1.to_string(), "5@3");
+    }
+
+    #[test]
+    fn test_residual_to_string_d() {
+        let r1 = Residual::from_components(5, 9);
+        assert_eq!(r1.to_string(), "5@4");
+    }
+
+    #[test]
+    fn test_residual_to_string_e() {
+        let r1 = Residual::from_components(5, 10);
+        assert_eq!(r1.to_string(), "5@0");
+    }
+
+    //------------------------------------------------------------------------------
+
+    // #[test]
+    // fn test_residual_not_a() {
+    //     let r1 = Residual::from_components(5, 10);
+    //     assert_eq!(r1.to_string(), String::from("!5@0"));
+    //     let r2 = !r1;
+    //     assert_eq!(r2.to_string(), "5@0");
+    //     let r3 = !r2;
+    //     assert_eq!(r3.to_string(), "!5@0");
+    // }
+
+    #[test]
+    fn test_residual_eq_a() {
+        let r1 = Residual::from_components(5, 2);
+        let r2 = Residual::from_components(5, 3);
+        assert_eq!(r1 == r2, false);
+        assert_eq!(r1 != r2, true);
+    }
+
+    #[test]
+    fn test_residual_eq_b() {
+        let r1 = Residual::from_components(5, 2);
+        let r2 = Residual::from_components(5, 2);
+        assert_eq!(r1 == r2, true);
+        assert_eq!(r1 != r2, false);
+
+    }
+
+    #[test]
+    fn test_residual_ord_a() {
+        let r1 = Residual::from_components(5, 2);
+        let r2 = Residual::from_components(5, 3);
+        assert!(r1 < r2);
+    }
+
+    #[test]
+    fn test_residual_ord_b() {
+        let r1 = Residual::from_components(2, 3);
+        let r2 = Residual::from_components(5, 3);
+        assert!(r1 < r2);
+    }
+
+    #[test]
+    fn test_residual_ord_c() {
+        let r1 = Residual::from_components(5, 3);
+        let r2 = Residual::from_components(5, 3);
+        assert!(r1 == r2);
+    }
+
+    //------------------------------------------------------------------------------
+
+    #[test]
+    fn test_residual_bitand_a() {
+        let r1 = Residual::from_components(4, 0);
+        let r2 = Residual::from_components(3, 0);
+        assert_eq!((r1 & r2).to_string(), "12@0");
+    }
+
+    #[test]
+    fn test_residual_bitand_b() {
+        let r1 = Residual::from_components(4, 0);
+        let r2 = Residual::from_components(3, 1);
+        assert_eq!((r1 & r2).to_string(), "12@4");
+    }
+
+    #[test]
+    fn test_residual_bitand_c() {
+        let r1 = Residual::from_components(5, 2);
+        let r2 = Residual::from_components(10, 3);
+        assert_eq!((r1 & r2).to_string(), "0@0");
+    }
+
+    #[test]
+    fn test_residual_bitand_d() {
+        let r1 = Residual::from_components(3, 2);
+        let r2 = Residual::from_components(3, 1);
+        assert_eq!((r1 & r2).to_string(), "0@0");
+    }
+
+    //--------------------------------------------------------------------------
+
+    #[test]
+    fn test_residual_isin_a() {
+        let r1 = Residual::from_components(3, 0);
+        assert_eq!(r1.isin(-3), true);
+        assert_eq!(r1.isin(-2), false);
+        assert_eq!(r1.isin(-1), false);
+        assert_eq!(r1.isin(0), true);
+        assert_eq!(r1.isin(1), false);
+        assert_eq!(r1.isin(2), false);
+        assert_eq!(r1.isin(3), true);
+        assert_eq!(r1.isin(4), false);
+        assert_eq!(r1.isin(5), false);
+
+    }
+
+    #[test]
+    fn test_residual_isin_b() {
+        let r1 = Residual::from_components(0, 0);
+        assert_eq!(r1.isin(-2), false);
+        assert_eq!(r1.isin(-1), false);
+        assert_eq!(r1.isin(0), false);
+        assert_eq!(r1.isin(1), false);
+        assert_eq!(r1.isin(2), false);
+        assert_eq!(r1.isin(3), false);
+    }
+
+    #[test]
+    fn test_residual_isin_c() {
+        let r1 = Residual::from_components(3, 1);
+        assert_eq!(r1.isin(-3), false);
+        assert_eq!(r1.isin(-2), true);
+        assert_eq!(r1.isin(-1), false);
+        assert_eq!(r1.isin(0), false);
+        assert_eq!(r1.isin(1), true);
+        assert_eq!(r1.isin(2), false);
+        assert_eq!(r1.isin(3), false);
+        assert_eq!(r1.isin(4), true);
+    }
+
+    //--------------------------------------------------------------------------
+
+    #[test]
+    fn test_sieve_isin_a() {
+        let r1 = Residual::from_components(3, 0);
+        let s1 = SieveNode::Unit(r1);
+
+        let pos = vec![-3,   -2,    -1,    0,    1];
+        let val = vec![true, false, false, true, false];
+        for (p, b) in pos.iter().zip(val.iter()) {
+            assert_eq!(s1.isin(*p), *b);
+        }
+    }
+
+    #[test]
+    fn test_sieve_isin_b() {
+        let r1 = Residual::from_components(3, 0);
+        let r2 = Residual::from_components(3, 1);
+        let s1 = SieveNode::Union(
+                Box::new(SieveNode::Unit(r1)),
+                Box::new(SieveNode::Unit(r2)),
+            );
+
+        assert_eq!(s1.isin(-2), true);
+        assert_eq!(s1.isin(-1), false);
+        assert_eq!(s1.isin(0), true);
+        assert_eq!(s1.isin(1), true);
+        assert_eq!(s1.isin(2), false);
+        assert_eq!(s1.isin(3), true);
+        assert_eq!(s1.isin(4), true);
+    }
+
 }
