@@ -76,3 +76,22 @@ fn test_sieve_iter_state_a() {
     let post1: Vec<_> = s1.iter_state(0..10).collect();
     assert_eq!(post1, vec![true, true, false, true, false, false, true, false, false, true]);
 }
+
+//------------------------------------------------------------------------------
+
+#[test]
+fn test_sieve_iter_interval_a() {
+    let s1 = Sieve::r("3@0") | Sieve::r("4@1");
+
+    let post1: Vec<_> = s1.iter_interval(0..10).collect();
+    assert_eq!(post1, vec![1, 2, 2, 1, 3]);
+}
+
+#[test]
+fn test_sieve_iter_interval_b() {
+    let s1 = Sieve::r("5@0") | Sieve::r("7@1");
+
+    let post1: Vec<_> = s1.iter_interval(-20..30).collect();
+    assert_eq!(post1, vec![5, 2, 3, 4, 1, 5, 1, 4, 3, 2, 5, 5, 2, 3, 4]);
+}
+

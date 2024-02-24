@@ -239,7 +239,7 @@ impl Sieve {
 
     /// Iterate over integer intervals between values in the sieve.
     pub fn iter_interval(&self, iterator: impl Iterator<Item = i128>) -> SieveIterateInterval<impl Iterator<Item = i128>> {
-        SieveIterateInterval{iterator: iterator, sieve_node: self.root.clone(), last: 0}
+        SieveIterateInterval{iterator: iterator, sieve_node: self.root.clone(), last: PositionLast::Init}
     }
 }
 
@@ -295,13 +295,18 @@ where
 
 //------------------------------------------------------------------------------
 
+enum PositionLast {
+    Init,
+    Value(i128),
+}
+
 pub struct SieveIterateInterval<I>
 where
     I: Iterator<Item = i128>
 {
     iterator: I,
     sieve_node: SieveNode,
-    last: i128,
+    last: PositionLast,
 }
 
 impl<I> Iterator for SieveIterateInterval<I>
@@ -311,16 +316,23 @@ where
     type Item = i128;
 
     fn next(&mut self) -> Option<Self::Item> {
-        match self.iterator.next() {
-            Some(p) => {
-                if self.sieve_node.isin(p) {
-                    let post = p - self.last;
-                    self.last = p;
-                    post;
+        while let Some(p) = self.iterator.next() {
+            if self.sieve_node.isin(p) {
+                match self.last {
+                    PositionLast::Init => {
+                        // drop the first value
+                        self.last = PositionLast::Value(p);
+                        continue;
+                    },
+                    PositionLast::Value(last) => {
+                        let post = p - last;
+                        self.last = PositionLast::Value(p);
+                        return Some(post);
+                    }
                 }
-            },
-            None => None,
+            }
         }
+        None
     }
 }
 
