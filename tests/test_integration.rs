@@ -22,7 +22,7 @@ fn test_sieve_new_b() {
 
 #[test]
 fn test_sieve_isin_c() {
-    let s1 = Sieve::r("5@0") | Sieve::r("5@1") | Sieve::r("5@4");
+    let s1 = Sieve::new("5@0") | Sieve::new("5@1") | Sieve::new("5@4");
 
     assert_eq!(s1.isin(-2), false);
     assert_eq!(s1.isin(-1), true);
@@ -37,7 +37,7 @@ fn test_sieve_isin_c() {
 
 #[test]
 fn test_sieve_isin_d() {
-    let s1 = !(Sieve::r("5@0") | Sieve::r("5@1") | Sieve::r("5@4"));
+    let s1 = !(Sieve::new("5@0") | Sieve::new("5@1") | Sieve::new("5@4"));
 
     assert_eq!(s1.to_string(), "Sieve{!(5@0|5@1|5@4)}");
 
@@ -54,7 +54,7 @@ fn test_sieve_isin_d() {
 
 #[test]
 fn test_sieve_iter_int_a() {
-    let s1 = !(Sieve::r("5@0") | Sieve::r("5@1") | Sieve::r("5@4"));
+    let s1 = !(Sieve::new("5@0") | Sieve::new("5@1") | Sieve::new("5@4"));
 
     let post1: Vec<_> = s1.iter_value(0..10).collect();
     assert_eq!(post1, vec![2, 3, 7, 8]);
@@ -65,7 +65,7 @@ fn test_sieve_iter_int_a() {
 
 #[test]
 fn test_sieve_iter_int_b() {
-    let s1 = Sieve::r("1@0");
+    let s1 = Sieve::new("1@0");
 
     let post1: Vec<_> = s1.iter_value(0..4).collect();
     assert_eq!(post1, vec![0, 1, 2, 3]);
@@ -84,7 +84,7 @@ fn test_sieve_iter_int_b() {
 
 #[test]
 fn test_sieve_iter_state_a() {
-    let s1 = Sieve::r("3@0") | Sieve::r("5@1");
+    let s1 = Sieve::new("3@0") | Sieve::new("5@1");
 
     let post1: Vec<_> = s1.iter_state(0..10).collect();
     assert_eq!(post1, vec![true, true, false, true, false, false, true, false, false, true]);
@@ -94,7 +94,7 @@ fn test_sieve_iter_state_a() {
 
 #[test]
 fn test_sieve_iter_interval_a() {
-    let s1 = Sieve::r("3@0") | Sieve::r("4@1");
+    let s1 = Sieve::new("3@0") | Sieve::new("4@1");
 
     let post1: Vec<_> = s1.iter_interval(0..10).collect();
     assert_eq!(post1, vec![1, 2, 2, 1, 3]);
@@ -102,7 +102,7 @@ fn test_sieve_iter_interval_a() {
 
 #[test]
 fn test_sieve_iter_interval_b() {
-    let s1 = Sieve::r("5@0") | Sieve::r("7@1");
+    let s1 = Sieve::new("5@0") | Sieve::new("7@1");
 
     let post1: Vec<_> = s1.iter_interval(-20..30).collect();
     assert_eq!(post1, vec![5, 2, 3, 4, 1, 5, 1, 4, 3, 2, 5, 5, 2, 3, 4]);

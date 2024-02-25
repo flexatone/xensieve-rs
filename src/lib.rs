@@ -33,14 +33,6 @@ impl Residual {
     }
 
     pub(crate) fn from_repr(value: &str) -> Result<Self, String> {
-        // let invert;
-        // if value.starts_with('!') {
-        //     invert = true;
-        //     value = &value[1..];
-        // } else {
-        //     invert = false;
-        // }
-
         let parts: Vec<&str> = value.split('@').collect();
         if parts.len() != 2 {
             return Err("Input must contain one '@' character separating two numbers.".to_string());
@@ -273,15 +265,8 @@ impl fmt::Display for Sieve {
 }
 
 impl Sieve {
-    /// Construct a Sieve from a Residual string representation.
+    /// Construct a Sieve from a string representation.
     ///
-    pub fn r(value: &str) -> Self {
-        match Residual::from_repr(value) {
-            Ok(residual) => Self{root: SieveNode::Unit(residual)},
-            Err(error) => panic!("Could not create Residual: {:?}", error),
-        }
-    }
-
     pub fn new(value: &str) -> Self {
         let mut stack: Vec<Self> = Vec::new();
         for token in infix_to_postfix(value) {
@@ -301,7 +286,9 @@ impl Sieve {
                     stack.push(left | right);
                 }
                 operand => {
-                    stack.push(Self::r(operand));
+                    let r = Residual::from_repr(operand).expect("Invalid syntax");
+                    let s = Self{root: SieveNode::Unit(r)};
+                    stack.push(s);
                 }
             }
         }
