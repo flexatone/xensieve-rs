@@ -51,7 +51,6 @@ impl Residual {
         let pos: i128 = value - self.shift as i128;
         pos % self.modulus as i128 == 0
     }
-
 }
 
 impl fmt::Display for Residual {
@@ -60,14 +59,6 @@ impl fmt::Display for Residual {
         write!(f, "{}@{}", self.modulus, self.shift)
     }
 }
-
-// impl Not for Residual {
-//     type Output = Self;
-
-//     fn not(self) -> Self {
-//         Self::from_components(self.modulus, self.shift, !self.invert)
-//     }
-// }
 
 impl BitAnd for Residual {
     type Output = Residual;
@@ -267,6 +258,10 @@ impl fmt::Display for Sieve {
 impl Sieve {
     /// Construct a Sieve from a string representation.
     ///
+    /// ```
+    /// let s = xenakis_sieve::Sieve::new("3@0|5@1");
+    /// assert_eq!(s.iter_value(0..15).collect::<Vec<_>>(), vec![0, 1, 3, 6, 9, 11, 12])
+    /// ````
     pub fn new(value: &str) -> Self {
         let mut stack: Vec<Self> = Vec::new();
         for token in infix_to_postfix(value) {
