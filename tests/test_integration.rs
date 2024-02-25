@@ -5,7 +5,20 @@ use xenakis_sieve::Sieve;
 
 
 //------------------------------------------------------------------------------
+#[test]
+fn test_sieve_new_a() {
+    let s1 = Sieve::new("3@0|5@1|5@4");
+    assert_eq!(s1.to_string(), "Sieve{3@0|5@1|5@4}");
+}
 
+#[test]
+fn test_sieve_new_b() {
+    let s1 = Sieve::new("!(3@0|5@1|5@4)|9@6");
+    assert_eq!(s1.to_string(), "Sieve{!(3@0|5@1|5@4)|9@6}");
+}
+
+
+//------------------------------------------------------------------------------
 
 #[test]
 fn test_sieve_isin_c() {

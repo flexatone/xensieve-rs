@@ -3,6 +3,8 @@ use std::ops::Not;
 use std::ops::BitAnd;
 use std::ops::BitOr;
 use std::cmp::Ordering;
+use std::collections::VecDeque;
+
 mod util;
 
 //------------------------------------------------------------------------------
@@ -172,6 +174,67 @@ impl SieveNode
 
 //------------------------------------------------------------------------------
 
+fn precedence_of(op: char) -> i8 {
+    match op {
+        '!' => 3,
+        '&' => 2,
+        '|' => 1,
+        _ => 0,
+    }
+}
+
+fn infix_to_postfix(expr: &str) -> VecDeque<String> {
+    let mut post: VecDeque<String> = VecDeque::new();
+    let mut operators: Vec<char> = Vec::new();
+    let mut operand: String = String::new();
+
+    for c in expr.chars() {
+        match c {
+            '0'..='9' | '@' => operand.push(c),
+            '!' => operators.push(c),
+            '|' | '&' => {
+                if !operand.is_empty() {
+                    post.push_back(operand.clone());
+                    operand.clear();
+                }
+                while let Some(&top) = operators.last() {
+                    if top == '(' || precedence_of(top) < precedence_of(c) {
+                        break;
+                    }
+                    post.push_back(operators.pop().unwrap().to_string())
+                }
+                operators.push(c);
+            }
+            '(' => operators.push(c),
+            ')' => {
+                if !operand.is_empty() {
+                    post.push_back(operand.clone());
+                    operand.clear();
+                }
+                while let Some(top) = operators.pop() {
+                    if top == '(' {
+                        break;
+                    }
+                    post.push_back(top.to_string())
+                }
+            },
+            _ => {} // panic if any other character?
+        }
+    }
+    // get any remaining numbers
+    if !operand.is_empty() {
+        post.push_back(operand);
+    }
+    // get any remaining operators
+    while let Some(op) = operators.pop() {
+        post.push_back(op.to_string());
+    }
+    post
+}
+
+
+//------------------------------------------------------------------------------
+
 /// A Sieve.
 ///
 #[derive(Clone, Debug)]
@@ -217,6 +280,32 @@ impl Sieve {
             Ok(residual) => Self{root: SieveNode::Unit(residual)},
             Err(error) => panic!("Could not create Residual: {:?}", error),
         }
+    }
+
+    pub fn new(value: &str) -> Self {
+        let mut stack: Vec<Self> = Vec::new();
+        for token in infix_to_postfix(value) {
+            match token.as_str() {
+                "!" => {
+                    let s = stack.pop().expect("Invalid syntax");
+                    stack.push(!s);
+                }
+                "&" => {
+                    let right = stack.pop().expect("Invalid syntax");
+                    let left = stack.pop().expect("Invalid syntax");
+                    stack.push(left & right);
+                }
+                "|" => {
+                    let right = stack.pop().expect("Invalid syntax");
+                    let left = stack.pop().expect("Invalid syntax");
+                    stack.push(left | right);
+                }
+                operand => {
+                    stack.push(Self::r(operand));
+                }
+            }
+        }
+        stack.pop().expect("No result")
     }
 
     /// Return `true` if the values is contained with this Sieve.
@@ -569,6 +658,17 @@ mod tests {
         assert_eq!(s1.isin(2), false);
         assert_eq!(s1.isin(3), true);
         assert_eq!(s1.isin(4), true);
+    }
+
+
+    // {default} % cargo test test_infix_to_rpn_a -- --nocapture
+    //------------------------------------------------------------------------------
+    #[test]
+    fn test_infix_to_rpn_a() {
+        let e1 = "!3@1 & 6@2 | !(10@0 | 2@0 | 3@0 )";
+        let px1 = infix_to_postfix(e1);
+        println!("infix  : {}", e1);
+        println!("postfix: {:?}", px1);
     }
 
 }
