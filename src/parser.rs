@@ -74,10 +74,44 @@ mod tests {
     // {default} % cargo test test_infix_to_rpn_a -- --nocapture
     //------------------------------------------------------------------------------
     #[test]
-    fn test_infix_to_rpn_a() {
+    fn test_infix_to_postfix_a() {
         let e1 = "!3@1 & 6@2 | !(10@0 | 2@0 | 3@0 )";
         let px1 = infix_to_postfix(e1);
-        println!("infix  : {}", e1);
-        println!("postfix: {:?}", px1);
+        assert_eq!(
+            px1.iter().collect::<Vec<_>>(),
+            vec!["3@1", "!", "6@2", "&", "10@0", "2@0", "|", "3@0", "|", "!", "|"]
+            );
     }
+
+    #[test]
+    fn test_infix_to_postfix_b() {
+        let e1 = "10@0 | 2@0 | 3@0";
+        let px1 = infix_to_postfix(e1);
+        assert_eq!(
+            px1.iter().collect::<Vec<_>>(),
+            vec!["10@0", "2@0", "|", "3@0", "|"]
+            );
+    }
+
+    #[test]
+    fn test_infix_to_postfix_c() {
+        let e1 = "!10@0 | !2@0 | !3@0";
+        let px1 = infix_to_postfix(e1);
+        assert_eq!(
+            px1.iter().collect::<Vec<_>>(),
+            vec!["10@0", "!", "2@0", "!", "|", "3@0", "!", "|"]
+            );
+    }
+
+    #[test]
+    fn test_infix_to_postfix_d() {
+        let e1 = "(10@0 & !2@0) | (!3@0 & 4@2)";
+        let px1 = infix_to_postfix(e1);
+        assert_eq!(
+            px1.iter().collect::<Vec<_>>(),
+            vec!["10@0", "2@0", "!", "&", "3@0", "!", "4@2", "&", "|"]
+            );
+    }
+
 }
+
