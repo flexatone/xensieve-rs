@@ -1,6 +1,18 @@
 
 use std::collections::VecDeque;
 
+
+pub(crate) fn residual_to_ints(value: &str) -> (u64, u64) {
+    let parts: Vec<&str> = value.split('@').collect();
+    if parts.len() != 2 {
+        panic!("Input must contain one '@' character separating two numbers.");
+    }
+    let m = parts[0].parse::<u64>().expect("Parse failure");
+    let s = parts[1].parse::<u64>().expect("Parse failure");
+    (m, s)
+}
+
+
 #[inline(always)]
 fn char_to_precedence(op: char) -> i8 {
     match op {
