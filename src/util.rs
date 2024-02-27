@@ -6,7 +6,7 @@ fn gcd<T>(
         zero: T,
         ) -> T where T: std::ops::Rem<Output = T> + std::cmp::Ord + Copy {
     // not sure if assert is best way to handle this
-    assert!(n != zero && m != zero);
+    assert!(n > zero && m > zero);
     while m != zero {
         if m < n {
             let t = m;
