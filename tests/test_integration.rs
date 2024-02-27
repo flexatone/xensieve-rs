@@ -87,7 +87,7 @@ fn test_sieve_iter_int_c() {
 
 #[test]
 fn test_sieve_iter_int_d() {
-    let s1 = Sieve::new("(6@0 | 7@0 | 7@8) & !(24@1 | 24@15)");
+    let s1 = Sieve::new("(6@0 | 7@0 | 7@1) & !(24@1 | 24@15)");
     let post1: Vec<_> = s1.iter_value(0..=24).collect();
     assert_eq!(post1, vec![0, 12, 24]);
 }
