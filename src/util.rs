@@ -1,9 +1,13 @@
 
 
-fn gcd(mut n: u64, mut m: u64) -> u64 {
+fn gcd<T>(
+        mut n: T,
+        mut m: T,
+        zero: T,
+        ) -> T where T: std::ops::Rem<Output = T> + std::cmp::Ord + Copy {
     // not sure if assert is best way to handle this
-    assert!(n != 0 && m != 0);
-    while m != 0 {
+    assert!(n != zero && m != zero);
+    while m != zero {
         if m < n {
             let t = m;
             m = n;
@@ -52,7 +56,7 @@ pub(crate) fn intersection(
     s2 = s2 % m2;
 
     // use common divisor
-    let d = gcd(m1, m2);
+    let d = gcd(m1, m2, 0);
     let md1 = m1 / d;
     let md2 = m2 / d;
     let span: u64 = (s2 as i128 - s1 as i128).abs().try_into().unwrap();
@@ -80,31 +84,31 @@ mod tests {
 
     #[test]
     fn test_gcd_a() {
-        assert_eq!(gcd(14, 15), 1);
+        assert_eq!(gcd(14, 15, 0), 1);
     }
 
     #[test]
     fn test_gcd_b() {
-        assert_eq!(gcd(12, 8), 4);
+        assert_eq!(gcd(12, 8, 0), 4);
     }
 
     #[test]
     fn test_gcd_c() {
         let a = 2 * 3 * 5 * 11 * 17;
         let b = 3 * 7 * 11 * 13 * 19;
-        assert_eq!(gcd(a, b), 3 * 11);
+        assert_eq!(gcd(a, b, 0), 3 * 11);
     }
 
     #[test]
     #[should_panic]
     fn test_gcd_d() {
-        gcd(12, 0);
+        gcd(12, 0, 0);
     }
 
     #[test]
     #[should_panic]
     fn test_gcd_e() {
-        gcd(0, 3);
+        gcd(0, 3, 0);
     }
 
     // #[test]
