@@ -1,7 +1,5 @@
-// use xenakis_sieve::util::lcm;
-// use xenakis_sieve::Residual;
-// use xenakis_sieve::SieveNode;
-use xenakis_sieve::Sieve;
+
+use xensieve::Sieve;
 
 
 //------------------------------------------------------------------------------

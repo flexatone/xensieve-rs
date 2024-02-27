@@ -3,5 +3,5 @@
 version = 3
 
 [[package]]
-name = "xenakis-sieve"
+name = "xensieve"
 version = "0.1.0"

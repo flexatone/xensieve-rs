@@ -1,2 +1,3 @@
-# xenakis-sieve
-Rust-based implementaton of the Xenakis sieve
+# xensieve
+
+A Rust-based implementation of the Xenakis Sieve.

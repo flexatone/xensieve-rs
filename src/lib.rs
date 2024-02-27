@@ -147,8 +147,8 @@ impl SieveNode
 
 //------------------------------------------------------------------------------
 
-/// A Sieve.
-///
+/// The representation of a Xenakis Sieve, constructed from a string notation of one or more Residual classes combined with logical operators.
+
 #[derive(Clone, Debug)]
 pub struct Sieve {
     root: SieveNode, // should this be boxed?
@@ -188,7 +188,7 @@ impl Sieve {
     /// Construct a Sieve from a string representation.
     ///
     /// ```
-    /// let s = xenakis_sieve::Sieve::new("3@0|5@1");
+    /// let s = xensieve::Sieve::new("3@0|5@1");
     /// assert_eq!(s.iter_value(0..15).collect::<Vec<_>>(), vec![0, 1, 3, 6, 9, 11, 12])
     /// ````
     pub fn new(value: &str) -> Self {
