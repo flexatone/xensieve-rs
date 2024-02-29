@@ -222,6 +222,12 @@ impl Sieve {
 
     /// Return `true` if the values is contained with this Sieve.
     ///
+    /// ```
+    /// let s = xensieve::Sieve::new("3@0 & 5@0");
+    /// assert_eq!(s.isin(15), true)
+    /// assert_eq!(s.isin(16), false)
+    /// assert_eq!(s.isin(30), true)
+    /// ````
     pub fn isin(&self, value: i128) -> bool {
         self.root.isin(value)
     }
