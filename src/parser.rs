@@ -2,14 +2,14 @@
 use std::collections::VecDeque;
 
 
-pub(crate) fn residual_to_ints(value: &str) -> (u64, u64) {
+pub(crate) fn residual_to_ints(value: &str) -> Result<(u64, u64), &'static str> {
     let parts: Vec<&str> = value.split('@').collect();
     if parts.len() != 2 {
-        panic!("Input must contain one '@' character separating two numbers.");
+        return Err("Input must contain one '@' character separating two numbers.");
     }
     let m = parts[0].parse::<u64>().expect("Parse failure");
     let s = parts[1].parse::<u64>().expect("Parse failure");
-    (m, s)
+    Ok((m, s))
 }
 
 
@@ -34,7 +34,7 @@ fn collect_operand(
     }
 }
 
-pub(crate) fn infix_to_postfix(expr: &str) -> VecDeque<String> {
+pub(crate) fn infix_to_postfix(expr: &str) -> Result<VecDeque<String>, &'static str> {
     let mut post: VecDeque<String> = VecDeque::new();
     let mut operators: Vec<char> = Vec::new();
     let mut operand: String = String::new();
@@ -63,7 +63,10 @@ pub(crate) fn infix_to_postfix(expr: &str) -> VecDeque<String> {
                     post.push_back(top.to_string())
                 }
             },
-            _ => {} // panic if any other character?
+            _ if c.is_whitespace() => {},
+            _ => {
+                return Err("Found unsupported operator.");
+            }
         }
     }
     // get any remaining numbers
@@ -74,7 +77,7 @@ pub(crate) fn infix_to_postfix(expr: &str) -> VecDeque<String> {
     while let Some(op) = operators.pop() {
         post.push_back(op.to_string());
     }
-    post
+    Ok(post)
 }
 
 
@@ -88,7 +91,7 @@ mod tests {
     #[test]
     fn test_infix_to_postfix_a() {
         let e1 = "!3@1 & 6@2 | !(10@0 | 2@0 | 3@0 )";
-        let px1 = infix_to_postfix(e1);
+        let px1 = infix_to_postfix(e1).unwrap();
         assert_eq!(
             px1.iter().collect::<Vec<_>>(),
             vec!["3@1", "!", "6@2", "&", "10@0", "2@0", "|", "3@0", "|", "!", "|"]
@@ -98,7 +101,7 @@ mod tests {
     #[test]
     fn test_infix_to_postfix_b() {
         let e1 = "10@0 | 2@0 | 3@0";
-        let px1 = infix_to_postfix(e1);
+        let px1 = infix_to_postfix(e1).unwrap();
         assert_eq!(
             px1.iter().collect::<Vec<_>>(),
             vec!["10@0", "2@0", "|", "3@0", "|"]
@@ -108,7 +111,7 @@ mod tests {
     #[test]
     fn test_infix_to_postfix_c() {
         let e1 = "!10@0 | !2@0 | !3@0";
-        let px1 = infix_to_postfix(e1);
+        let px1 = infix_to_postfix(e1).unwrap();
         assert_eq!(
             px1.iter().collect::<Vec<_>>(),
             vec!["10@0", "!", "2@0", "!", "|", "3@0", "!", "|"]
@@ -118,7 +121,7 @@ mod tests {
     #[test]
     fn test_infix_to_postfix_d() {
         let e1 = "(10@0 & !2@0) | (!3@0 & 4@2)";
-        let px1 = infix_to_postfix(e1);
+        let px1 = infix_to_postfix(e1).unwrap();
         assert_eq!(
             px1.iter().collect::<Vec<_>>(),
             vec!["10@0", "2@0", "!", "&", "3@0", "!", "4@2", "&", "|"]

@@ -193,7 +193,7 @@ impl Sieve {
     /// ````
     pub fn new(value: &str) -> Self {
         let mut stack: Vec<Self> = Vec::new();
-        for token in parser::infix_to_postfix(value) {
+        for token in parser::infix_to_postfix(value).expect("Parsing failure") {
             match token.as_str() {
                 "!" => {
                     let s = stack.pop().expect("Invalid syntax");
@@ -210,7 +210,7 @@ impl Sieve {
                     stack.push(left | right);
                 }
                 operand => {
-                    let (m, s) = parser::residual_to_ints(operand);
+                    let (m, s) = parser::residual_to_ints(operand).expect("Parsing failure");
                     let r = Residual::new(m, s);
                     let s = Self{root: SieveNode::Unit(r)};
                     stack.push(s);
