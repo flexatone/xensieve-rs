@@ -59,7 +59,7 @@ impl BitAnd for Residual {
                 rhs.modulus,
                 self.shift,
                 rhs.shift,
-                );
+                ).unwrap();
         Self::new(m, s)
         }
 }

@@ -4,9 +4,12 @@ fn gcd<T>(
         mut n: T,
         mut m: T,
         zero: T,
-        ) -> T where T: std::ops::Rem<Output = T> + std::cmp::Ord + Copy {
+        ) -> Result<T, &'static str>
+        where T: std::ops::Rem<Output = T> + std::cmp::Ord + Copy {
     // not sure if assert is best way to handle this
-    assert!(n > zero && m > zero);
+    if n <= zero || m <= zero {
+        return Err("zero or negative values not supported");
+    }
     while m != zero {
         if m < n {
             let t = m;
@@ -15,7 +18,7 @@ fn gcd<T>(
         }
         m = m % n;
     }
-    n
+    Ok(n)
 }
 
 // fn lcm(a: u64, b: u64) -> u64 {
@@ -46,87 +49,67 @@ pub(crate) fn intersection(
         m2: u64,
         mut s1: u64,
         mut s2: u64,
-        ) -> (u64, u64) {
+        ) -> Result<(u64, u64), &'static str> {
     if m1 == 0 || m2 == 0 {
         // intersection of null and anything is null
-        return (0, 0);
+        return Ok((0, 0));
     }
     // normalize shifts
     s1 = s1 % m1;
     s2 = s2 % m2;
 
     // use common divisor
-    let d = gcd(m1, m2, 0);
+    let d = gcd(m1, m2, 0)?;
     let md1 = m1 / d;
     let md2 = m2 / d;
     let span: u64 = (s2 as i128 - s1 as i128).abs().try_into().unwrap();
 
     if d != 1 && (span % d != 0) {
-        return (0, 0); // no intersection
+        return Ok((0, 0)); // no intersection
     }
     if d != 1
         && (span % d == 0)
         && (s1 != s2)
         && (md1 == md2) {
-        return (d, s1);
+        return Ok((d, s1));
     }
     // d might be 1
     let m = md1 * md2 * d;
-    (m, (s1 + (meziriac(md1, md2) * span * md1)) % m)
+    Ok((m, (s1 + (meziriac(md1, md2) * span * md1)) % m))
 
 }
 
 
 #[cfg(test)] // only compile when running cargo test
 mod tests {
-    use super::*; // bring code in outer into scope
-    // use crate::util::*;
+    use super::*;
 
     #[test]
     fn test_gcd_a() {
-        assert_eq!(gcd(14, 15, 0), 1);
+        assert_eq!(gcd(14, 15, 0).unwrap(), 1);
     }
 
     #[test]
     fn test_gcd_b() {
-        assert_eq!(gcd(12, 8, 0), 4);
+        assert_eq!(gcd(12, 8, 0).unwrap(), 4);
     }
 
     #[test]
     fn test_gcd_c() {
         let a = 2 * 3 * 5 * 11 * 17;
         let b = 3 * 7 * 11 * 13 * 19;
-        assert_eq!(gcd(a, b, 0), 3 * 11);
+        assert_eq!(gcd(a, b, 0).unwrap(), 3 * 11);
     }
 
     #[test]
-    #[should_panic]
     fn test_gcd_d() {
-        gcd(12, 0, 0);
+        assert_eq!(gcd(12, 0, 0).is_err(), true);
     }
 
     #[test]
-    #[should_panic]
     fn test_gcd_e() {
-        gcd(0, 3, 0);
+        assert_eq!(gcd(0, 3, 0).is_err(), true);
     }
-
-    // #[test]
-    // fn test_lcm_a() {
-    //     assert_eq!(lcm(12, 8), 24);
-    // }
-
-    // #[test]
-    // fn test_lcm_b() {
-    //     assert_eq!(lcm(3, 4), 12);
-    // }
-
-    // #[test]
-    // #[should_panic]
-    // fn test_lcm_c() {
-    //     // as gcd panics on 0, this does as well
-    //     assert_eq!(lcm(3, 0), 0);
-    // }
 
     #[test]
     fn test_meziriac_a() {
