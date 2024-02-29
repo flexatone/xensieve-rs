@@ -26,7 +26,7 @@ fn gcd<T>(
 // }
 
 /// This is a brute-force implementation of modular inverse. The Extended Euclidian Algorithm might be a better choice.
-fn meziriac(a: u64, b: u64) -> u64 {
+fn meziriac(a: u64, b: u64) -> Result<u64, &'static str> {
     let mut g: u64 = 1;
     if b == 1 {
         g = 1;
@@ -40,7 +40,7 @@ fn meziriac(a: u64, b: u64) -> u64 {
             g += 1;
         }
     }
-    g
+    Ok(g)
 }
 
 /// Intersection of two residual classes.
@@ -75,7 +75,7 @@ pub(crate) fn intersection(
     }
     // d might be 1
     let m = md1 * md2 * d;
-    Ok((m, (s1 + (meziriac(md1, md2) * span * md1)) % m))
+    Ok((m, (s1 + (meziriac(md1, md2).unwrap() * span * md1)) % m))
 
 }
 
@@ -113,13 +113,13 @@ mod tests {
 
     #[test]
     fn test_meziriac_a() {
-        assert_eq!(meziriac(1, 1), 1);
-        assert_eq!(meziriac(10, 1), 1);
-        assert_eq!(meziriac(10, 10), 0);
-        assert_eq!(meziriac(12, 12), 0);
-        assert_eq!(meziriac(3, 11), 4);
-        assert_eq!(meziriac(20, 9), 5);
-        assert_eq!(meziriac(101, 13), 4);
+        assert_eq!(meziriac(1, 1).unwrap(), 1);
+        assert_eq!(meziriac(10, 1).unwrap(), 1);
+        assert_eq!(meziriac(10, 10).unwrap(), 0);
+        assert_eq!(meziriac(12, 12).unwrap(), 0);
+        assert_eq!(meziriac(3, 11).unwrap(), 4);
+        assert_eq!(meziriac(20, 9).unwrap(), 5);
+        assert_eq!(meziriac(101, 13).unwrap(), 4);
     }
 }
 
