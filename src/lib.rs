@@ -148,7 +148,7 @@ impl SieveNode
 //------------------------------------------------------------------------------
 
 /// The representation of a Xenakis Sieve, constructed from a string notation of one or more Residual classes combined with logical operators.
-
+/// This implementation follows Ariza (2005), with significant performance and interface enhancements: https://direct.mit.edu/comj/article/29/2/40/93957/The-Xenakis-Sieve-as-Object-A-New-Model-and-a
 #[derive(Clone, Debug)]
 pub struct Sieve {
     root: SieveNode, // should this be boxed?
@@ -186,7 +186,6 @@ impl fmt::Display for Sieve {
 
 impl Sieve {
     /// Construct a Xenakis Sieve from a string representation.
-    /// This implementation follows Ariza (2005), with significant performance and interface enhancements: https://direct.mit.edu/comj/article/29/2/40/93957/The-Xenakis-Sieve-as-Object-A-New-Model-and-a
     ///
     /// ```
     /// let s = xensieve::Sieve::new("3@0|5@1");
