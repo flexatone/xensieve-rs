@@ -34,7 +34,7 @@ impl Residual {
 
     /// Return `true` if the values is contained with this Sieve.
     ///
-    pub(crate) fn isin(&self, value: i128) -> bool {
+    pub(crate) fn contains(&self, value: i128) -> bool {
         if self.modulus == 0 {
             return false;
         }
@@ -127,19 +127,19 @@ impl SieveNode
 {
     /// Return `true` if the values is contained with this Sieve.
     ///
-    pub fn isin(&self, value: i128) -> bool {
+    pub fn contains(&self, value: i128) -> bool {
         match self {
             SieveNode::Unit(residual) => {
-                residual.isin(value)
+                residual.contains(value)
             },
             SieveNode::Intersection(lhs, rhs) => {
-                lhs.isin(value) && rhs.isin(value)
+                lhs.contains(value) && rhs.contains(value)
             },
             SieveNode::Union(lhs, rhs) => {
-                lhs.isin(value) || rhs.isin(value)
+                lhs.contains(value) || rhs.contains(value)
             },
             SieveNode::Inversion(part) => {
-                !part.isin(value)
+                !part.contains(value)
             },
         }
     }
@@ -185,7 +185,8 @@ impl fmt::Display for Sieve {
 }
 
 impl Sieve {
-    /// Construct a Sieve from a string representation.
+    /// Construct a Xenakis Sieve from a string representation.
+    /// This implementation follows Ariza (2005), with significant performance and interface enhancements: https://direct.mit.edu/comj/article/29/2/40/93957/The-Xenakis-Sieve-as-Object-A-New-Model-and-a
     ///
     /// ```
     /// let s = xensieve::Sieve::new("3@0|5@1");
@@ -224,35 +225,46 @@ impl Sieve {
     ///
     /// ```
     /// let s = xensieve::Sieve::new("3@0 & 5@0");
-    /// assert_eq!(s.isin(15), true)
-    /// assert_eq!(s.isin(16), false)
-    /// assert_eq!(s.isin(30), true)
+    /// assert_eq!(s.contains(15), true);
+    /// assert_eq!(s.contains(16), false);
+    /// assert_eq!(s.contains(30), true);
+    /// ```
+    pub fn contains(&self, value: i128) -> bool {
+        self.root.contains(value)
+    }
+
+    /// For the iterator provided as an input, iterate the subset of values that are contained within the sieve.
+    /// ```
+    /// let s = xensieve::Sieve::new("3@0|4@0");
+    /// assert_eq!(s.iter_value(0..=12).collect::<Vec<_>>(), vec![0, 3, 4, 6, 8, 9, 12])
     /// ````
-    pub fn isin(&self, value: i128) -> bool {
-        self.root.isin(value)
-    }
-
-    /// Iterate over values contained within the sieve.
-    /// NOTE: the iterator "impl" type shows that the parameter must implement the Iterator<Item = i128> trait.
-    pub fn iter_value(&self, iterator: impl Iterator<Item = i128>) -> SieveIterateValue<impl Iterator<Item = i128>> {
+    pub fn iter_value(&self, iterator: impl Iterator<Item = i128>) -> IterValue<impl Iterator<Item = i128>> {
         // NOTE: do not want to clone self here...
-        SieveIterateValue{iterator: iterator, sieve_node: self.root.clone()}
+        IterValue{iterator: iterator, sieve_node: self.root.clone()}
     }
 
-    /// Iterate over Boolean states contained within the sieve.
-    pub fn iter_state(&self, iterator: impl Iterator<Item = i128>) -> SieveIterateState<impl Iterator<Item = i128>> {
-        SieveIterateState{iterator: iterator, sieve_node: self.root.clone()}
+    /// For the iterator provided as an input, iterate the Boolean status of contained.
+    /// ```
+    /// let s = xensieve::Sieve::new("3@0|4@0");
+    /// assert_eq!(s.iter_state(0..=6).collect::<Vec<_>>(), vec![true, false, false, true, true, false, true])
+    /// ````
+    pub fn iter_state(&self, iterator: impl Iterator<Item = i128>) -> IterState<impl Iterator<Item = i128>> {
+        IterState{iterator: iterator, sieve_node: self.root.clone()}
     }
 
     /// Iterate over integer intervals between values in the sieve.
-    pub fn iter_interval(&self, iterator: impl Iterator<Item = i128>) -> SieveIterateInterval<impl Iterator<Item = i128>> {
-        SieveIterateInterval{iterator: iterator, sieve_node: self.root.clone(), last: PositionLast::Init}
+    /// ```
+    /// let s = xensieve::Sieve::new("3@0|4@0");
+    /// assert_eq!(s.iter_interval(0..=12).collect::<Vec<_>>(), vec![3, 1, 2, 2, 1, 3])
+    /// ````
+    pub fn iter_interval(&self, iterator: impl Iterator<Item = i128>) -> IterInterval<impl Iterator<Item = i128>> {
+        IterInterval{iterator: iterator, sieve_node: self.root.clone(), last: PositionLast::Init}
     }
 }
 
 //------------------------------------------------------------------------------
 
-pub struct SieveIterateValue<I>
+pub struct IterValue<I>
 where
     I: Iterator<Item = i128>
 {
@@ -260,7 +272,7 @@ where
     sieve_node: SieveNode,
 }
 
-impl<I> Iterator for SieveIterateValue<I>
+impl<I> Iterator for IterValue<I>
 where
     I: Iterator<Item = i128>
 {
@@ -268,7 +280,7 @@ where
 
     fn next(&mut self) -> Option<Self::Item> {
         while let Some(p) = self.iterator.next() {
-            if self.sieve_node.isin(p) {
+            if self.sieve_node.contains(p) {
                 return Some(p);
             }
         }
@@ -278,7 +290,7 @@ where
 
 //------------------------------------------------------------------------------
 
-pub struct SieveIterateState<I>
+pub struct IterState<I>
 where
     I: Iterator<Item = i128>
 {
@@ -286,7 +298,7 @@ where
     sieve_node: SieveNode,
 }
 
-impl<I> Iterator for SieveIterateState<I>
+impl<I> Iterator for IterState<I>
 where
     I: Iterator<Item = i128>
 {
@@ -294,7 +306,7 @@ where
 
     fn next(&mut self) -> Option<Self::Item> {
         match self.iterator.next() {
-            Some(p) => Some(self.sieve_node.isin(p)),
+            Some(p) => Some(self.sieve_node.contains(p)),
             None => None,
         }
     }
@@ -307,7 +319,7 @@ enum PositionLast {
     Value(i128),
 }
 
-pub struct SieveIterateInterval<I>
+pub struct IterInterval<I>
 where
     I: Iterator<Item = i128>
 {
@@ -316,7 +328,7 @@ where
     last: PositionLast,
 }
 
-impl<I> Iterator for SieveIterateInterval<I>
+impl<I> Iterator for IterInterval<I>
 where
     I: Iterator<Item = i128>
 {
@@ -324,7 +336,7 @@ where
 
     fn next(&mut self) -> Option<Self::Item> {
         while let Some(p) = self.iterator.next() {
-            if self.sieve_node.isin(p) {
+            if self.sieve_node.contains(p) {
                 match self.last {
                     PositionLast::Init => {
                         // drop the first value
@@ -510,40 +522,40 @@ mod tests {
     #[test]
     fn test_residual_isin_a() {
         let r1 = Residual::new(3, 0);
-        assert_eq!(r1.isin(-3), true);
-        assert_eq!(r1.isin(-2), false);
-        assert_eq!(r1.isin(-1), false);
-        assert_eq!(r1.isin(0), true);
-        assert_eq!(r1.isin(1), false);
-        assert_eq!(r1.isin(2), false);
-        assert_eq!(r1.isin(3), true);
-        assert_eq!(r1.isin(4), false);
-        assert_eq!(r1.isin(5), false);
+        assert_eq!(r1.contains(-3), true);
+        assert_eq!(r1.contains(-2), false);
+        assert_eq!(r1.contains(-1), false);
+        assert_eq!(r1.contains(0), true);
+        assert_eq!(r1.contains(1), false);
+        assert_eq!(r1.contains(2), false);
+        assert_eq!(r1.contains(3), true);
+        assert_eq!(r1.contains(4), false);
+        assert_eq!(r1.contains(5), false);
 
     }
 
     #[test]
     fn test_residual_isin_b() {
         let r1 = Residual::new(0, 0);
-        assert_eq!(r1.isin(-2), false);
-        assert_eq!(r1.isin(-1), false);
-        assert_eq!(r1.isin(0), false);
-        assert_eq!(r1.isin(1), false);
-        assert_eq!(r1.isin(2), false);
-        assert_eq!(r1.isin(3), false);
+        assert_eq!(r1.contains(-2), false);
+        assert_eq!(r1.contains(-1), false);
+        assert_eq!(r1.contains(0), false);
+        assert_eq!(r1.contains(1), false);
+        assert_eq!(r1.contains(2), false);
+        assert_eq!(r1.contains(3), false);
     }
 
     #[test]
     fn test_residual_isin_c() {
         let r1 = Residual::new(3, 1);
-        assert_eq!(r1.isin(-3), false);
-        assert_eq!(r1.isin(-2), true);
-        assert_eq!(r1.isin(-1), false);
-        assert_eq!(r1.isin(0), false);
-        assert_eq!(r1.isin(1), true);
-        assert_eq!(r1.isin(2), false);
-        assert_eq!(r1.isin(3), false);
-        assert_eq!(r1.isin(4), true);
+        assert_eq!(r1.contains(-3), false);
+        assert_eq!(r1.contains(-2), true);
+        assert_eq!(r1.contains(-1), false);
+        assert_eq!(r1.contains(0), false);
+        assert_eq!(r1.contains(1), true);
+        assert_eq!(r1.contains(2), false);
+        assert_eq!(r1.contains(3), false);
+        assert_eq!(r1.contains(4), true);
     }
 
     //--------------------------------------------------------------------------
@@ -556,7 +568,7 @@ mod tests {
         let pos = vec![-3,   -2,    -1,    0,    1];
         let val = vec![true, false, false, true, false];
         for (p, b) in pos.iter().zip(val.iter()) {
-            assert_eq!(s1.isin(*p), *b);
+            assert_eq!(s1.contains(*p), *b);
         }
     }
 
@@ -569,13 +581,13 @@ mod tests {
                 Box::new(SieveNode::Unit(r2)),
             );
 
-        assert_eq!(s1.isin(-2), true);
-        assert_eq!(s1.isin(-1), false);
-        assert_eq!(s1.isin(0), true);
-        assert_eq!(s1.isin(1), true);
-        assert_eq!(s1.isin(2), false);
-        assert_eq!(s1.isin(3), true);
-        assert_eq!(s1.isin(4), true);
+        assert_eq!(s1.contains(-2), true);
+        assert_eq!(s1.contains(-1), false);
+        assert_eq!(s1.contains(0), true);
+        assert_eq!(s1.contains(1), true);
+        assert_eq!(s1.contains(2), false);
+        assert_eq!(s1.contains(3), true);
+        assert_eq!(s1.contains(4), true);
     }
 
 }

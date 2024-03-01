@@ -22,15 +22,15 @@ fn test_sieve_new_b() {
 fn test_sieve_isin_c() {
     let s1 = Sieve::new("5@0") | Sieve::new("5@1") | Sieve::new("5@4");
 
-    assert_eq!(s1.isin(-2), false);
-    assert_eq!(s1.isin(-1), true);
-    assert_eq!(s1.isin(0), true);
-    assert_eq!(s1.isin(1), true);
-    assert_eq!(s1.isin(2), false);
-    assert_eq!(s1.isin(3), false);
-    assert_eq!(s1.isin(4), true);
-    assert_eq!(s1.isin(5), true);
-    assert_eq!(s1.isin(5), true);
+    assert_eq!(s1.contains(-2), false);
+    assert_eq!(s1.contains(-1), true);
+    assert_eq!(s1.contains(0), true);
+    assert_eq!(s1.contains(1), true);
+    assert_eq!(s1.contains(2), false);
+    assert_eq!(s1.contains(3), false);
+    assert_eq!(s1.contains(4), true);
+    assert_eq!(s1.contains(5), true);
+    assert_eq!(s1.contains(5), true);
 }
 
 #[test]
@@ -39,15 +39,15 @@ fn test_sieve_isin_d() {
 
     assert_eq!(s1.to_string(), "Sieve{!(5@0|5@1|5@4)}");
 
-    assert_eq!(s1.isin(-2), true);
-    assert_eq!(s1.isin(-1), false);
-    assert_eq!(s1.isin(0), false);
-    assert_eq!(s1.isin(1), false);
-    assert_eq!(s1.isin(2), true);
-    assert_eq!(s1.isin(3), true);
-    assert_eq!(s1.isin(4), false);
-    assert_eq!(s1.isin(5), false);
-    assert_eq!(s1.isin(5), false);
+    assert_eq!(s1.contains(-2), true);
+    assert_eq!(s1.contains(-1), false);
+    assert_eq!(s1.contains(0), false);
+    assert_eq!(s1.contains(1), false);
+    assert_eq!(s1.contains(2), true);
+    assert_eq!(s1.contains(3), true);
+    assert_eq!(s1.contains(4), false);
+    assert_eq!(s1.contains(5), false);
+    assert_eq!(s1.contains(5), false);
 }
 
 #[test]
