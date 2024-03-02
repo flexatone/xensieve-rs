@@ -16,8 +16,9 @@ pub(crate) fn residual_to_ints(value: &str) -> Result<(u64, u64), &'static str> 
 #[inline(always)]
 fn char_to_precedence(op: char) -> i8 {
     match op {
-        '!' => 3,
-        '&' => 2,
+        '!' => 4,
+        '&' => 3,
+        '^' => 2,
         '|' => 1,
         _ => 0,
     }
@@ -41,9 +42,9 @@ pub(crate) fn infix_to_postfix(expr: &str) -> Result<VecDeque<String>, &'static 
 
     for c in expr.chars() {
         match c {
-            '0'..='9' | '@' => operand.push(c),
+            '0'..='9' | '@' => operand.push(c), // operand characters
             '!' => operators.push(c),
-            '|' | '&' => {
+            '|' | '&' | '^' => { // all binary operators
                 collect_operand(&mut post, &mut operand);
                 while let Some(&top) = operators.last() {
                     if top == '(' || char_to_precedence(top) < char_to_precedence(c) {

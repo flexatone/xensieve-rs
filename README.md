@@ -8,3 +8,12 @@ This implementation follows Ariza (2005), with significant performance and inter
 
 
 
+# What is New in `xensieve`
+
+## 0.2.0
+
+Implemented symmetric difference with the `^` opperator on `Sieve`.
+
+## 0.1.0
+
+First release.

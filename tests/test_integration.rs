@@ -122,6 +122,12 @@ fn test_sieve_iter_int_h() {
     assert_eq!(post1, vec![0, 1, 4, 5, 6, 7, 8, 9, 10]);
 }
 
+#[test]
+fn test_sieve_iter_int_i() {
+    let s1 = Sieve::new("!(10@1 | 10@2) ^ !(10@7 | 10@8)");
+    let post1: Vec<_> = s1.iter_value(0..=10).collect();
+    assert_eq!(post1, vec![1, 2, 7, 8]);
+}
 
 //------------------------------------------------------------------------------
 

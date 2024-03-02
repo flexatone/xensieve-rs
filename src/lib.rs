@@ -2,6 +2,7 @@ use std::fmt;
 use std::ops::Not;
 use std::ops::BitAnd;
 use std::ops::BitOr;
+use std::ops::BitXor;
 use std::cmp::Ordering;
 
 mod util;
@@ -94,6 +95,7 @@ pub(crate) enum SieveNode {
     Unit(Residual),
     Intersection(Box<SieveNode>, Box<SieveNode>),
     Union(Box<SieveNode>, Box<SieveNode>),
+    SymmetricDifference(Box<SieveNode>, Box<SieveNode>),
     Inversion(Box<SieveNode>),
 }
 
@@ -113,6 +115,11 @@ impl fmt::Display for SieveNode {
                 let lhs_str = lhs.to_string();
                 let rhs_str = rhs.to_string();
                 s = format!("{lhs_str}|{rhs_str}");
+            },
+            SieveNode::SymmetricDifference(lhs, rhs) => {
+                let lhs_str = lhs.to_string();
+                let rhs_str = rhs.to_string();
+                s = format!("{lhs_str}^{rhs_str}");
             },
             SieveNode::Inversion(part) => {
                 let r = part.to_string();
@@ -137,6 +144,9 @@ impl SieveNode
             },
             SieveNode::Union(lhs, rhs) => {
                 lhs.contains(value) || rhs.contains(value)
+            },
+            SieveNode::SymmetricDifference(lhs, rhs) => {
+                lhs.contains(value) ^ rhs.contains(value) // TEST: is this right?
             },
             SieveNode::Inversion(part) => {
                 !part.contains(value)
@@ -167,6 +177,14 @@ impl BitOr for Sieve {
 
     fn bitor(self, rhs: Self) -> Self::Output {
         Sieve{root: SieveNode::Union(Box::new(self.root), Box::new(rhs.root))}
+    }
+}
+
+impl BitXor for Sieve {
+    type Output = Sieve;
+
+    fn bitxor(self, rhs: Self) -> Self::Output {
+        Sieve{root: SieveNode::SymmetricDifference(Box::new(self.root), Box::new(rhs.root))}
     }
 }
 
@@ -203,6 +221,11 @@ impl Sieve {
                     let right = stack.pop().expect("Invalid syntax");
                     let left = stack.pop().expect("Invalid syntax");
                     stack.push(left & right);
+                }
+                "^" => {
+                    let right = stack.pop().expect("Invalid syntax");
+                    let left = stack.pop().expect("Invalid syntax");
+                    stack.push(left ^ right);
                 }
                 "|" => {
                     let right = stack.pop().expect("Invalid syntax");
