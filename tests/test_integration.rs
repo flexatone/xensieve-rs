@@ -113,6 +113,15 @@ fn test_sieve_iter_int_g() {
     assert_eq!(post1, vec![]);
 }
 
+// 7@0|{-5@2&-4@3}'
+
+#[test]
+fn test_sieve_iter_int_h() {
+    let s1 = Sieve::new("7@0 | (!5@2 & !4@3)");
+    let post1: Vec<_> = s1.iter_value(0..=12).collect();
+    assert_eq!(post1, vec![0, 1, 4, 5, 6, 7, 8, 9, 10]);
+}
+
 
 //------------------------------------------------------------------------------
 
