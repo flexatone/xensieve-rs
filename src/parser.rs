@@ -129,5 +129,15 @@ mod tests {
             );
     }
 
+    #[test]
+    fn test_infix_to_postfix_e() {
+        let e1 = "10@0 ^ 10@9";
+        let px1 = infix_to_postfix(e1).unwrap();
+        assert_eq!(
+            px1.iter().collect::<Vec<_>>(),
+            vec!["10@0", "10@9", "^"]
+            );
+    }
+
 }
 
