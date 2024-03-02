@@ -99,6 +99,21 @@ fn test_sieve_iter_int_e() {
     assert_eq!(post1, vec![0, 3, 5, 6, 9, 12]);
 }
 
+#[test]
+fn test_sieve_iter_int_f() {
+    let s1 = Sieve::new("0@0");
+    let post1: Vec<_> = s1.iter_value(0..=12).collect();
+    assert_eq!(post1, vec![]);
+}
+
+#[test]
+fn test_sieve_iter_int_g() {
+    let s1 = Sieve::new("3@0&3@2");
+    let post1: Vec<_> = s1.iter_value(0..=12).collect();
+    assert_eq!(post1, vec![]);
+}
+
+
 //------------------------------------------------------------------------------
 
 #[test]
