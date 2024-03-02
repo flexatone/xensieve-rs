@@ -2,7 +2,15 @@
 name = "xensieve"
 version = "0.1.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+authors = ["Christopher Ariza"]
+homepage = "https://github.com/flexatone/xensieve-rs"
+repository = "https://github.com/flexatone/xensieve-rs"
+license = "MIT"
+license-file = "LICENSE"
+keywords = ["sieve", "residual", "modulus", "set", "xenakis"]
+categories = [
+    "mathematics",
+    "data-structures",
+]
 
 [dependencies]
