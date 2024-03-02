@@ -7,6 +7,9 @@ homepage = "https://github.com/flexatone/xensieve-rs"
 repository = "https://github.com/flexatone/xensieve-rs"
 license = "MIT"
 license-file = "LICENSE"
+
+description = "An implementation of the Xenakis Sieve, providing a Sieve interface from a string expression that filters integer sequences into sieve integers, Boolean states, or interval widths."
+
 keywords = ["sieve", "residual", "modulus", "set", "xenakis"]
 categories = [
     "mathematics",
