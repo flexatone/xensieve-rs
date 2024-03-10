@@ -86,11 +86,10 @@ pub(crate) fn infix_to_postfix(expr: &str) -> Result<VecDeque<String>, &'static 
 // to run cargo test and see stdout:
 // % cargo test test_infix_to_rpn_a -- --nocapture
 
-#[cfg(test)] // only compile when running cargo test
+#[cfg(test)]
 mod tests {
-    use super::*; // bring code in outer into scope
+    use super::*;
 
-    //------------------------------------------------------------------------------
     #[test]
     fn test_infix_to_postfix_a() {
         let e1 = "!3@1 & 6@2 | !(10@0 | 2@0 | 3@0 )";

@@ -33,7 +33,7 @@ impl Residual {
         Self{modulus: modulus, shift: shift}
     }
 
-    /// Return `true` if the values is contained with this Sieve.
+    /// Return `true` if the value is contained with this Sieve.
     ///
     pub(crate) fn contains(&self, value: i128) -> bool {
         if self.modulus == 0 {
@@ -130,9 +130,8 @@ impl fmt::Display for SieveNode {
     }
 }
 
-impl SieveNode
-{
-    /// Return `true` if the values is contained with this Sieve.
+impl SieveNode {
+    /// Return `true` if the values is contained within this Sieve.
     ///
     pub fn contains(&self, value: i128) -> bool {
         match self {
@@ -146,7 +145,7 @@ impl SieveNode
                 lhs.contains(value) || rhs.contains(value)
             },
             SieveNode::SymmetricDifference(lhs, rhs) => {
-                lhs.contains(value) ^ rhs.contains(value) // TEST: is this right?
+                lhs.contains(value) ^ rhs.contains(value)
             },
             SieveNode::Inversion(part) => {
                 !part.contains(value)
@@ -161,7 +160,7 @@ impl SieveNode
 /// This implementation follows Ariza (2005), with significant performance and interface enhancements: https://direct.mit.edu/comj/article/29/2/40/93957/The-Xenakis-Sieve-as-Object-A-New-Model-and-a
 #[derive(Clone, Debug)]
 pub struct Sieve {
-    root: SieveNode, // should this be boxed?
+    root: SieveNode,
 }
 
 impl BitAnd for Sieve {
@@ -214,36 +213,36 @@ impl Sieve {
         for token in parser::infix_to_postfix(value).expect("Parsing failure") {
             match token.as_str() {
                 "!" => {
-                    let s = stack.pop().expect("Invalid syntax");
+                    let s = stack.pop().expect("Invalid syntax: missing operand");
                     stack.push(!s);
                 }
                 "&" => {
-                    let right = stack.pop().expect("Invalid syntax");
-                    let left = stack.pop().expect("Invalid syntax");
+                    let right = stack.pop().expect("Invalid syntax: missing operand");
+                    let left = stack.pop().expect("Invalid syntax: missing operand");
                     stack.push(left & right);
                 }
                 "^" => {
-                    let right = stack.pop().expect("Invalid syntax");
-                    let left = stack.pop().expect("Invalid syntax");
+                    let right = stack.pop().expect("Invalid syntax: missing operand");
+                    let left = stack.pop().expect("Invalid syntax: missing operand");
                     stack.push(left ^ right);
                 }
                 "|" => {
-                    let right = stack.pop().expect("Invalid syntax");
-                    let left = stack.pop().expect("Invalid syntax");
+                    let right = stack.pop().expect("Invalid syntax: missing operand");
+                    let left = stack.pop().expect("Invalid syntax: missing operand");
                     stack.push(left | right);
                 }
                 operand => {
-                    let (m, s) = parser::residual_to_ints(operand).expect("Parsing failure");
+                    let (m, s) = parser::residual_to_ints(operand).expect("Invalid syntax: cannot parse Residual");
                     let r = Residual::new(m, s);
                     let s = Self{root: SieveNode::Unit(r)};
                     stack.push(s);
                 }
             }
         }
-        stack.pop().expect("No result")
+        stack.pop().expect("Invalid syntax: no result")
     }
 
-    /// Return `true` if the values is contained with this Sieve.
+    /// Return `true` if the value is contained with this Sieve.
     ///
     /// ```
     /// let s = xensieve::Sieve::new("3@0 & 5@0");
@@ -286,6 +285,11 @@ impl Sieve {
 
 //------------------------------------------------------------------------------
 
+/// The iterator returned by `iter_value`.
+/// ```
+/// let s = xensieve::Sieve::new("3@0|4@0");
+/// assert_eq!(s.iter_value(0..).next(), Ok(0))
+/// ```
 pub struct IterValue<I>
 where
     I: Iterator<Item = i128>
@@ -293,6 +297,7 @@ where
     iterator: I,
     sieve_node: SieveNode,
 }
+
 
 impl<I> Iterator for IterValue<I>
 where
@@ -312,6 +317,7 @@ where
 
 //------------------------------------------------------------------------------
 
+/// The iterator returned by `iter_state`.
 pub struct IterState<I>
 where
     I: Iterator<Item = i128>
@@ -341,6 +347,7 @@ enum PositionLast {
     Value(i128),
 }
 
+/// The iterator returned by `iter_interval`.
 pub struct IterInterval<I>
 where
     I: Iterator<Item = i128>
