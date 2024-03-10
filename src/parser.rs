@@ -91,6 +91,16 @@ mod tests {
     use super::*;
 
     #[test]
+    fn test_residual_to_ints_a() {
+        assert_eq!(residual_to_ints("3@1").unwrap(), (3, 1))
+    }
+
+    #[test]
+    fn test_residual_to_ints_b() {
+        assert_eq!(residual_to_ints("9@2").unwrap(), (9, 2))
+    }
+
+    #[test]
     fn test_infix_to_postfix_a() {
         let e1 = "!3@1 & 6@2 | !(10@0 | 2@0 | 3@0 )";
         let px1 = infix_to_postfix(e1).unwrap();
