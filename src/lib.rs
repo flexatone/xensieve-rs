@@ -288,7 +288,9 @@ impl Sieve {
 /// The iterator returned by `iter_value`.
 /// ```
 /// let s = xensieve::Sieve::new("3@0|4@0");
-/// assert_eq!(s.iter_value(0..).next(), Ok(0))
+/// let mut s_iter = s.iter_value(17..);
+/// assert_eq!(s_iter.next().unwrap(), 18);
+/// assert_eq!(s_iter.next().unwrap(), 20);
 /// ```
 pub struct IterValue<I>
 where
@@ -318,6 +320,14 @@ where
 //------------------------------------------------------------------------------
 
 /// The iterator returned by `iter_state`.
+/// ```
+/// let s = xensieve::Sieve::new("3@0|4@0");
+/// let mut s_iter = s.iter_state(17..);
+/// assert_eq!(s_iter.next().unwrap(), false);
+/// assert_eq!(s_iter.next().unwrap(), true);
+/// assert_eq!(s_iter.next().unwrap(), false);
+/// assert_eq!(s_iter.next().unwrap(), true);
+/// ```
 pub struct IterState<I>
 where
     I: Iterator<Item = i128>
@@ -348,6 +358,13 @@ enum PositionLast {
 }
 
 /// The iterator returned by `iter_interval`.
+/// ```
+/// let s = xensieve::Sieve::new("3@0|4@0");
+/// let mut s_iter = s.iter_interval(17..);
+/// assert_eq!(s_iter.next().unwrap(), 2);
+/// assert_eq!(s_iter.next().unwrap(), 1);
+/// assert_eq!(s_iter.next().unwrap(), 3);
+/// ```
 pub struct IterInterval<I>
 where
     I: Iterator<Item = i128>
