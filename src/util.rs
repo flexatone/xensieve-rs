@@ -6,7 +6,6 @@ fn gcd<T>(
         zero: T,
         ) -> Result<T, &'static str>
         where T: std::ops::Rem<Output = T> + std::cmp::Ord + Copy {
-    // not sure if assert is best way to handle this
     if n <= zero || m <= zero {
         return Err("zero or negative values not supported");
     }
@@ -20,10 +19,6 @@ fn gcd<T>(
     }
     Ok(n)
 }
-
-// fn lcm(a: u64, b: u64) -> u64 {
-//     a * b / gcd(a, b)
-// }
 
 /// This is a brute-force implementation of modular inverse. The Extended Euclidian Algorithm might be a better choice.
 fn meziriac(a: u64, b: u64) -> Result<u64, &'static str> {
@@ -43,7 +38,7 @@ fn meziriac(a: u64, b: u64) -> Result<u64, &'static str> {
     Ok(g)
 }
 
-/// Intersection of two residual classes.
+/// Core implementation of intersection of two residual classes.
 pub(crate) fn intersection(
         m1: u64,
         m2: u64,
@@ -76,11 +71,10 @@ pub(crate) fn intersection(
     // d might be 1
     let m = md1 * md2 * d;
     Ok((m, (s1 + (meziriac(md1, md2).unwrap() * span * md1)) % m))
-
 }
 
 
-#[cfg(test)] // only compile when running cargo test
+#[cfg(test)]
 mod tests {
     use super::*;
 
