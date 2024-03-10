@@ -403,10 +403,9 @@ where
 
 //------------------------------------------------------------------------------
 
-#[cfg(test)] // only compile when running cargo test
+#[cfg(test)]
 mod tests {
-    use super::*; // bring code in outer into scope
-    // use crate::util::*;
+    use super::*;
 
     #[test]
     fn test_residual_a() {
@@ -420,39 +419,7 @@ mod tests {
         assert_eq!(r1.to_string(), "0@0");
     }
 
-    //------------------------------------------------------------------------------
-    // #[test]
-    // fn test_residual_from_repr_a() {
-    //     let r1 = Residual::from_repr("3@1").expect("");
-    //     assert_eq!(r1.to_string(), "3@1");
-    // }
-
-    // #[test]
-    // fn test_residual_from_repr_b() {
-    //     let r1 = Residual::from_repr("3@4").expect("");
-    //     assert_eq!(r1.to_string(), "3@1");
-    // }
-
-    // #[test]
-    // fn test_residual_from_repr_c() {
-    //     let r1 = Residual::from_repr("9@2").expect("");
-    //     assert_eq!(r1.to_string(), "9@2");
-    // }
-
-
-    // #[test]
-    // fn test_residual_from_repr_d() {
-    //     let r1 = Residual::from_repr("5@5").expect("");
-    //     assert_eq!(r1.to_string(), "5@0");
-    // }
-
-    // #[test]
-    // fn test_residual_from_repr_e() {
-    //     let r1 = Residual::from_repr("0@5").expect("");
-    //     assert_eq!(r1.to_string(), "0@0");
-    // }
-
-    //------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     #[test]
     fn test_residual_to_string_a() {
         let r1 = Residual::new(3, 0);
@@ -483,7 +450,7 @@ mod tests {
         assert_eq!(r1.to_string(), "5@0");
     }
 
-    //------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
 
     // #[test]
     // fn test_residual_not_a() {
@@ -533,7 +500,7 @@ mod tests {
         assert!(r1 == r2);
     }
 
-    //------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
 
     #[test]
     fn test_residual_bitand_a() {
@@ -566,7 +533,7 @@ mod tests {
     //--------------------------------------------------------------------------
 
     #[test]
-    fn test_residual_isin_a() {
+    fn test_residual_contains_a() {
         let r1 = Residual::new(3, 0);
         assert_eq!(r1.contains(-3), true);
         assert_eq!(r1.contains(-2), false);
@@ -581,7 +548,7 @@ mod tests {
     }
 
     #[test]
-    fn test_residual_isin_b() {
+    fn test_residual_contains_b() {
         let r1 = Residual::new(0, 0);
         assert_eq!(r1.contains(-2), false);
         assert_eq!(r1.contains(-1), false);
@@ -592,7 +559,7 @@ mod tests {
     }
 
     #[test]
-    fn test_residual_isin_c() {
+    fn test_residual_contains_c() {
         let r1 = Residual::new(3, 1);
         assert_eq!(r1.contains(-3), false);
         assert_eq!(r1.contains(-2), true);
@@ -607,7 +574,32 @@ mod tests {
     //--------------------------------------------------------------------------
 
     #[test]
-    fn test_sieve_isin_a() {
+    fn test_sieve_new_a() {
+        let s1 = Sieve::new("3@1");
+        assert_eq!(s1.to_string(), "Sieve{3@1}");
+    }
+
+    #[test]
+    fn test_sieve_new_b() {
+        let s1 = Sieve::new("3@4");
+        assert_eq!(s1.to_string(), "Sieve{3@1}");
+    }
+
+    #[test]
+    fn test_sieve_new_c() {
+        let s1 = Sieve::new("5@5");
+        assert_eq!(s1.to_string(), "Sieve{5@0}");
+    }
+
+    #[test]
+    fn test_sieve_new_d() {
+        let s1 = Sieve::new("0@5");
+        assert_eq!(s1.to_string(), "Sieve{0@0}");
+    }
+
+
+    #[test]
+    fn test_sieve_contains_a() {
         let r1 = Residual::new(3, 0);
         let s1 = SieveNode::Unit(r1);
 
@@ -619,7 +611,7 @@ mod tests {
     }
 
     #[test]
-    fn test_sieve_isin_b() {
+    fn test_sieve_contains_b() {
         let r1 = Residual::new(3, 0);
         let r2 = Residual::new(3, 1);
         let s1 = SieveNode::Union(

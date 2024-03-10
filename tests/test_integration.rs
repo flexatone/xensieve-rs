@@ -19,7 +19,7 @@ fn test_sieve_new_b() {
 //------------------------------------------------------------------------------
 
 #[test]
-fn test_sieve_isin_c() {
+fn test_sieve_contains_c() {
     let s1 = Sieve::new("5@0") | Sieve::new("5@1") | Sieve::new("5@4");
 
     assert_eq!(s1.contains(-2), false);
@@ -34,7 +34,7 @@ fn test_sieve_isin_c() {
 }
 
 #[test]
-fn test_sieve_isin_d() {
+fn test_sieve_contains_d() {
     let s1 = !(Sieve::new("5@0") | Sieve::new("5@1") | Sieve::new("5@4"));
 
     assert_eq!(s1.to_string(), "Sieve{!(5@0|5@1|5@4)}");

@@ -101,6 +101,11 @@ mod tests {
     }
 
     #[test]
+    fn test_residual_to_ints_c() {
+        assert_eq!(residual_to_ints("0@5").unwrap(), (0, 5))
+    }
+
+    #[test]
     fn test_infix_to_postfix_a() {
         let e1 = "!3@1 & 6@2 | !(10@0 | 2@0 | 3@0 )";
         let px1 = infix_to_postfix(e1).unwrap();
