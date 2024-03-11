@@ -4,11 +4,15 @@ An implementation of the Xenakis Sieve, providing a Sieve interface from a strin
 
 The Xenakis Sieve is tool for generating discrete interval patterns. Such patterns have boundless applications in creative domains: the Xenakis Sieve can be used to generate scales or multi-octave pitch sequences, rhythms and polyrhtyhms, and used to control countless other aspects of pictorial or architectural design.
 
-This Rust implementation follows the Python implementation in Ariza (2005), with significant performance and interface enhancements: https://direct.mit.edu/comj/article/29/2/40/93957/The-Xenakis-Sieve-as-Object-A-New-Model-and-a
+This Rust implementation follows the Python implementation in Ariza (2005), with significant performance and interface enhancements: https://direct.mit.edu/comj/article/29/2/40/93957
 
 
 
 # What is New in `xensieve`
+
+## 0.3.0
+
+Code cleanup and improved doc strings.
 
 ## 0.2.0
 
