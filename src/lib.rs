@@ -156,8 +156,7 @@ impl SieveNode {
 
 //------------------------------------------------------------------------------
 
-/// The representation of a Xenakis Sieve, constructed from a string notation of one or more Residual classes combined with logical operators.
-/// This implementation follows Ariza (2005), with significant performance and interface enhancements: https://direct.mit.edu/comj/article/29/2/40/93957
+/// The representation of a Xenakis Sieve, constructed from a string notation of one or more Residual classes combined with logical operators. This Rust implementation follows the Python implementation in Ariza (2005), with significant performance and interface enhancements: https://direct.mit.edu/comj/article/29/2/40/93957
 #[derive(Clone, Debug)]
 pub struct Sieve {
     root: SieveNode,
