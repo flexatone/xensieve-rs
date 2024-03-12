@@ -171,7 +171,6 @@ impl BitAnd for Sieve {
     }
 }
 
-// Note sure this is the rigth approach
 impl BitAnd for &Sieve {
     type Output = Sieve;
 
@@ -188,11 +187,27 @@ impl BitOr for Sieve {
     }
 }
 
+impl BitOr for &Sieve {
+    type Output = Sieve;
+
+    fn bitor(self, rhs: Self) -> Self::Output {
+        Sieve{root: SieveNode::Union(Box::new(self.root.clone()), Box::new(rhs.root.clone()))}
+    }
+}
+
 impl BitXor for Sieve {
     type Output = Sieve;
 
     fn bitxor(self, rhs: Self) -> Self::Output {
         Sieve{root: SieveNode::SymmetricDifference(Box::new(self.root), Box::new(rhs.root))}
+    }
+}
+
+impl BitXor for &Sieve {
+    type Output = Sieve;
+
+    fn bitxor(self, rhs: Self) -> Self::Output {
+        Sieve{root: SieveNode::SymmetricDifference(Box::new(self.root.clone()), Box::new(rhs.root.clone()))}
     }
 }
 
@@ -203,6 +218,15 @@ impl Not for Sieve {
         Sieve{root: SieveNode::Inversion(Box::new(self.root))}
     }
 }
+
+impl Not for &Sieve {
+    type Output = Sieve;
+
+    fn not(self) -> Self::Output {
+        Sieve{root: SieveNode::Inversion(Box::new(self.root.clone()))}
+    }
+}
+
 
 impl fmt::Display for Sieve {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -649,5 +673,38 @@ mod tests {
         assert_eq!(s3.to_string(), "Sieve{3@1|4@0}");
     }
 
+    #[test]
+    fn test_sieve_operators_b() {
+        let s1 = Sieve::new("3@1");
+        let s2 = Sieve::new("4@0");
+        let s3 = &s1 | &s2;
+
+        assert_eq!(s3.to_string(), "Sieve{3@1|4@0}");
+    }
+
+    #[test]
+    fn test_sieve_operators_c() {
+        let s1 = Sieve::new("3@1");
+        let s2 = Sieve::new("4@0");
+        let s3 = &s1 & &s2;
+
+        assert_eq!(s3.to_string(), "Sieve{3@1&4@0}");
+    }
+
+    #[test]
+    fn test_sieve_operators_d() {
+        let s1 = Sieve::new("3@1");
+        let s2 = Sieve::new("4@0");
+        let s3 = &s1 ^ &s2;
+
+        assert_eq!(s3.to_string(), "Sieve{3@1^4@0}");
+    }
+
+    #[test]
+    fn test_sieve_operators_e() {
+        let s1 = Sieve::new("3@1");
+        let s3 = !&s1;
+        assert_eq!(s3.to_string(), "Sieve{!(3@1)}");
+    }
 
 }
