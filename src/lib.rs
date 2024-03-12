@@ -171,6 +171,15 @@ impl BitAnd for Sieve {
     }
 }
 
+// Note sure this is the rigth approach
+impl BitAnd for &Sieve {
+    type Output = Sieve;
+
+    fn bitand(self, rhs: Self) -> Self::Output {
+        Sieve{root: SieveNode::Intersection(Box::new(self.root.clone()), Box::new(rhs.root.clone()))}
+    }
+}
+
 impl BitOr for Sieve {
     type Output = Sieve;
 
