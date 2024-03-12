@@ -16,7 +16,7 @@ mod parser;
 /// * `modulus` - The modulus.
 /// * `shift` - The shift.
 ///
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Copy)]
 pub(crate) struct Residual {
     modulus: u64,
     shift: u64,
@@ -157,7 +157,7 @@ impl SieveNode {
 //------------------------------------------------------------------------------
 
 /// The representation of a Xenakis Sieve, constructed from a string notation of one or more Residual classes combined with logical operators.
-/// This implementation follows Ariza (2005), with significant performance and interface enhancements: https://direct.mit.edu/comj/article/29/2/40/93957/The-Xenakis-Sieve-as-Object-A-New-Model-and-a
+/// This implementation follows Ariza (2005), with significant performance and interface enhancements: https://direct.mit.edu/comj/article/29/2/40/93957
 #[derive(Clone, Debug)]
 pub struct Sieve {
     root: SieveNode,
@@ -168,6 +168,15 @@ impl BitAnd for Sieve {
 
     fn bitand(self, rhs: Self) -> Self::Output {
         Sieve{root: SieveNode::Intersection(Box::new(self.root), Box::new(rhs.root))}
+    }
+}
+
+// Note sure this is the rigth approach
+impl BitAnd for &Sieve {
+    type Output = Sieve;
+
+    fn bitand(self, rhs: Self) -> Self::Output {
+        Sieve{root: SieveNode::Intersection(Box::new(self.root.clone()), Box::new(rhs.root.clone()))}
     }
 }
 
@@ -627,5 +636,18 @@ mod tests {
         assert_eq!(s1.contains(3), true);
         assert_eq!(s1.contains(4), true);
     }
+
+
+    //--------------------------------------------------------------------------
+
+    #[test]
+    fn test_sieve_operators_a() {
+        let s1 = Sieve::new("3@1");
+        let s2 = Sieve::new("4@0");
+        let s3 = s1 | s2;
+
+        assert_eq!(s3.to_string(), "Sieve{3@1|4@0}");
+    }
+
 
 }
