@@ -16,7 +16,7 @@ mod parser;
 /// * `modulus` - The modulus.
 /// * `shift` - The shift.
 ///
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Copy)]
 pub(crate) struct Residual {
     modulus: u64,
     shift: u64,
@@ -627,5 +627,20 @@ mod tests {
         assert_eq!(s1.contains(3), true);
         assert_eq!(s1.contains(4), true);
     }
+
+
+    //--------------------------------------------------------------------------
+
+    #[test]
+    fn test_sieve_operators_a() {
+        // let s3 = Sieve::new("3@1") | Sieve::new("4@0");
+
+        let s1 = Sieve::new("3@1");
+        let s2 = Sieve::new("4@0");
+        let s3 = s1 | s2;
+
+        assert_eq!(s3.to_string(), "Sieve{3@1|4@0}");
+    }
+
 
 }
