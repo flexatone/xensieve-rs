@@ -6,6 +6,14 @@ The Xenakis Sieve is tool for generating discrete interval patterns. Such patter
 
 This Rust implementation follows the Python implementation in Ariza (2005), with significant performance and interface enhancements: https://direct.mit.edu/comj/article/29/2/40/93957
 
+# Strategies for Creating Sieves
+
+First, we will examine the output of isolated Residuals, defined (as shown above) as a modulus (M) and a shift (S), notated `M@S`.
+
+![Residual diagram](https://raw.githubusercontent.com/flexatone/xensieve-sandbox/default/images/residual-a.svg)
+
+
+![Sieve diagram](https://github.com/flexatone/xensieve-sandbox/blob/default/images/sieve-a.svg)
 
 
 # What is New in `xensieve`
