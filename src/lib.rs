@@ -633,8 +633,6 @@ mod tests {
 
     #[test]
     fn test_sieve_operators_a() {
-        // let s3 = Sieve::new("3@1") | Sieve::new("4@0");
-
         let s1 = Sieve::new("3@1");
         let s2 = Sieve::new("4@0");
         let s3 = s1 | s2;
