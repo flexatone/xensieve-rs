@@ -33,7 +33,7 @@ impl Residual {
         Self{modulus: modulus, shift: shift}
     }
 
-    /// Return `true` if the values is contained with this Sieve.
+    /// Return `true` if the value is contained with this Sieve.
     ///
     pub(crate) fn contains(&self, value: i128) -> bool {
         if self.modulus == 0 {
@@ -130,9 +130,8 @@ impl fmt::Display for SieveNode {
     }
 }
 
-impl SieveNode
-{
-    /// Return `true` if the values is contained with this Sieve.
+impl SieveNode {
+    /// Return `true` if the values is contained within this Sieve.
     ///
     pub fn contains(&self, value: i128) -> bool {
         match self {
@@ -146,7 +145,7 @@ impl SieveNode
                 lhs.contains(value) || rhs.contains(value)
             },
             SieveNode::SymmetricDifference(lhs, rhs) => {
-                lhs.contains(value) ^ rhs.contains(value) // TEST: is this right?
+                lhs.contains(value) ^ rhs.contains(value)
             },
             SieveNode::Inversion(part) => {
                 !part.contains(value)
@@ -161,7 +160,7 @@ impl SieveNode
 /// This implementation follows Ariza (2005), with significant performance and interface enhancements: https://direct.mit.edu/comj/article/29/2/40/93957
 #[derive(Clone, Debug)]
 pub struct Sieve {
-    root: SieveNode, // should this be boxed?
+    root: SieveNode,
 }
 
 impl BitAnd for Sieve {
@@ -214,36 +213,36 @@ impl Sieve {
         for token in parser::infix_to_postfix(value).expect("Parsing failure") {
             match token.as_str() {
                 "!" => {
-                    let s = stack.pop().expect("Invalid syntax");
+                    let s = stack.pop().expect("Invalid syntax: missing operand");
                     stack.push(!s);
                 }
                 "&" => {
-                    let right = stack.pop().expect("Invalid syntax");
-                    let left = stack.pop().expect("Invalid syntax");
+                    let right = stack.pop().expect("Invalid syntax: missing operand");
+                    let left = stack.pop().expect("Invalid syntax: missing operand");
                     stack.push(left & right);
                 }
                 "^" => {
-                    let right = stack.pop().expect("Invalid syntax");
-                    let left = stack.pop().expect("Invalid syntax");
+                    let right = stack.pop().expect("Invalid syntax: missing operand");
+                    let left = stack.pop().expect("Invalid syntax: missing operand");
                     stack.push(left ^ right);
                 }
                 "|" => {
-                    let right = stack.pop().expect("Invalid syntax");
-                    let left = stack.pop().expect("Invalid syntax");
+                    let right = stack.pop().expect("Invalid syntax: missing operand");
+                    let left = stack.pop().expect("Invalid syntax: missing operand");
                     stack.push(left | right);
                 }
                 operand => {
-                    let (m, s) = parser::residual_to_ints(operand).expect("Parsing failure");
+                    let (m, s) = parser::residual_to_ints(operand).expect("Invalid syntax: cannot parse Residual");
                     let r = Residual::new(m, s);
                     let s = Self{root: SieveNode::Unit(r)};
                     stack.push(s);
                 }
             }
         }
-        stack.pop().expect("No result")
+        stack.pop().expect("Invalid syntax: no result")
     }
 
-    /// Return `true` if the values is contained with this Sieve.
+    /// Return `true` if the value is contained with this Sieve.
     ///
     /// ```
     /// let s = xensieve::Sieve::new("3@0 & 5@0");
@@ -286,6 +285,13 @@ impl Sieve {
 
 //------------------------------------------------------------------------------
 
+/// The iterator returned by `iter_value`.
+/// ```
+/// let s = xensieve::Sieve::new("3@0|4@0");
+/// let mut s_iter = s.iter_value(17..);
+/// assert_eq!(s_iter.next().unwrap(), 18);
+/// assert_eq!(s_iter.next().unwrap(), 20);
+/// ```
 pub struct IterValue<I>
 where
     I: Iterator<Item = i128>
@@ -293,6 +299,7 @@ where
     iterator: I,
     sieve_node: SieveNode,
 }
+
 
 impl<I> Iterator for IterValue<I>
 where
@@ -312,6 +319,15 @@ where
 
 //------------------------------------------------------------------------------
 
+/// The iterator returned by `iter_state`.
+/// ```
+/// let s = xensieve::Sieve::new("3@0|4@0");
+/// let mut s_iter = s.iter_state(17..);
+/// assert_eq!(s_iter.next().unwrap(), false);
+/// assert_eq!(s_iter.next().unwrap(), true);
+/// assert_eq!(s_iter.next().unwrap(), false);
+/// assert_eq!(s_iter.next().unwrap(), true);
+/// ```
 pub struct IterState<I>
 where
     I: Iterator<Item = i128>
@@ -341,6 +357,14 @@ enum PositionLast {
     Value(i128),
 }
 
+/// The iterator returned by `iter_interval`.
+/// ```
+/// let s = xensieve::Sieve::new("3@0|4@0");
+/// let mut s_iter = s.iter_interval(17..);
+/// assert_eq!(s_iter.next().unwrap(), 2);
+/// assert_eq!(s_iter.next().unwrap(), 1);
+/// assert_eq!(s_iter.next().unwrap(), 3);
+/// ```
 pub struct IterInterval<I>
 where
     I: Iterator<Item = i128>
@@ -379,10 +403,9 @@ where
 
 //------------------------------------------------------------------------------
 
-#[cfg(test)] // only compile when running cargo test
+#[cfg(test)]
 mod tests {
-    use super::*; // bring code in outer into scope
-    // use crate::util::*;
+    use super::*;
 
     #[test]
     fn test_residual_a() {
@@ -396,39 +419,7 @@ mod tests {
         assert_eq!(r1.to_string(), "0@0");
     }
 
-    //------------------------------------------------------------------------------
-    // #[test]
-    // fn test_residual_from_repr_a() {
-    //     let r1 = Residual::from_repr("3@1").expect("");
-    //     assert_eq!(r1.to_string(), "3@1");
-    // }
-
-    // #[test]
-    // fn test_residual_from_repr_b() {
-    //     let r1 = Residual::from_repr("3@4").expect("");
-    //     assert_eq!(r1.to_string(), "3@1");
-    // }
-
-    // #[test]
-    // fn test_residual_from_repr_c() {
-    //     let r1 = Residual::from_repr("9@2").expect("");
-    //     assert_eq!(r1.to_string(), "9@2");
-    // }
-
-
-    // #[test]
-    // fn test_residual_from_repr_d() {
-    //     let r1 = Residual::from_repr("5@5").expect("");
-    //     assert_eq!(r1.to_string(), "5@0");
-    // }
-
-    // #[test]
-    // fn test_residual_from_repr_e() {
-    //     let r1 = Residual::from_repr("0@5").expect("");
-    //     assert_eq!(r1.to_string(), "0@0");
-    // }
-
-    //------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     #[test]
     fn test_residual_to_string_a() {
         let r1 = Residual::new(3, 0);
@@ -459,7 +450,7 @@ mod tests {
         assert_eq!(r1.to_string(), "5@0");
     }
 
-    //------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
 
     // #[test]
     // fn test_residual_not_a() {
@@ -509,7 +500,7 @@ mod tests {
         assert!(r1 == r2);
     }
 
-    //------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
 
     #[test]
     fn test_residual_bitand_a() {
@@ -542,7 +533,7 @@ mod tests {
     //--------------------------------------------------------------------------
 
     #[test]
-    fn test_residual_isin_a() {
+    fn test_residual_contains_a() {
         let r1 = Residual::new(3, 0);
         assert_eq!(r1.contains(-3), true);
         assert_eq!(r1.contains(-2), false);
@@ -557,7 +548,7 @@ mod tests {
     }
 
     #[test]
-    fn test_residual_isin_b() {
+    fn test_residual_contains_b() {
         let r1 = Residual::new(0, 0);
         assert_eq!(r1.contains(-2), false);
         assert_eq!(r1.contains(-1), false);
@@ -568,7 +559,7 @@ mod tests {
     }
 
     #[test]
-    fn test_residual_isin_c() {
+    fn test_residual_contains_c() {
         let r1 = Residual::new(3, 1);
         assert_eq!(r1.contains(-3), false);
         assert_eq!(r1.contains(-2), true);
@@ -583,7 +574,32 @@ mod tests {
     //--------------------------------------------------------------------------
 
     #[test]
-    fn test_sieve_isin_a() {
+    fn test_sieve_new_a() {
+        let s1 = Sieve::new("3@1");
+        assert_eq!(s1.to_string(), "Sieve{3@1}");
+    }
+
+    #[test]
+    fn test_sieve_new_b() {
+        let s1 = Sieve::new("3@4");
+        assert_eq!(s1.to_string(), "Sieve{3@1}");
+    }
+
+    #[test]
+    fn test_sieve_new_c() {
+        let s1 = Sieve::new("5@5");
+        assert_eq!(s1.to_string(), "Sieve{5@0}");
+    }
+
+    #[test]
+    fn test_sieve_new_d() {
+        let s1 = Sieve::new("0@5");
+        assert_eq!(s1.to_string(), "Sieve{0@0}");
+    }
+
+
+    #[test]
+    fn test_sieve_contains_a() {
         let r1 = Residual::new(3, 0);
         let s1 = SieveNode::Unit(r1);
 
@@ -595,7 +611,7 @@ mod tests {
     }
 
     #[test]
-    fn test_sieve_isin_b() {
+    fn test_sieve_contains_b() {
         let r1 = Residual::new(3, 0);
         let r2 = Residual::new(3, 1);
         let s1 = SieveNode::Union(

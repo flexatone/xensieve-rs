@@ -1,7 +1,7 @@
 
 use std::collections::VecDeque;
 
-
+/// Given a Residual string representation, parse it into two integers.
 pub(crate) fn residual_to_ints(value: &str) -> Result<(u64, u64), &'static str> {
     let parts: Vec<&str> = value.split('@').collect();
     if parts.len() != 2 {
@@ -12,7 +12,7 @@ pub(crate) fn residual_to_ints(value: &str) -> Result<(u64, u64), &'static str> 
     Ok((m, s))
 }
 
-
+/// Operator precedence for `infix_to_postfix`.
 #[inline(always)]
 fn char_to_precedence(op: char) -> i8 {
     match op {
@@ -24,6 +24,7 @@ fn char_to_precedence(op: char) -> i8 {
     }
 }
 
+/// Utility function to reduce repetition in `infix_to_postfix`.
 #[inline(always)]
 fn collect_operand(
     post: &mut VecDeque<String>,
@@ -66,7 +67,8 @@ pub(crate) fn infix_to_postfix(expr: &str) -> Result<VecDeque<String>, &'static 
             },
             _ if c.is_whitespace() => {},
             _ => {
-                return Err("Found unsupported operator.");
+                // TODO: need to show character in error message
+                return Err("Found unsupported operator: {}.");
             }
         }
     }
@@ -81,14 +83,28 @@ pub(crate) fn infix_to_postfix(expr: &str) -> Result<VecDeque<String>, &'static 
     Ok(post)
 }
 
+// to run cargo test and see stdout:
+// % cargo test test_infix_to_rpn_a -- --nocapture
 
-#[cfg(test)] // only compile when running cargo test
+#[cfg(test)]
 mod tests {
-    use super::*; // bring code in outer into scope
-    // use crate::util::*;
+    use super::*;
 
-    // {default} % cargo test test_infix_to_rpn_a -- --nocapture
-    //------------------------------------------------------------------------------
+    #[test]
+    fn test_residual_to_ints_a() {
+        assert_eq!(residual_to_ints("3@1").unwrap(), (3, 1))
+    }
+
+    #[test]
+    fn test_residual_to_ints_b() {
+        assert_eq!(residual_to_ints("9@2").unwrap(), (9, 2))
+    }
+
+    #[test]
+    fn test_residual_to_ints_c() {
+        assert_eq!(residual_to_ints("0@5").unwrap(), (0, 5))
+    }
+
     #[test]
     fn test_infix_to_postfix_a() {
         let e1 = "!3@1 & 6@2 | !(10@0 | 2@0 | 3@0 )";
