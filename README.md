@@ -7,7 +7,9 @@ The Xenakis Sieve is tool for generating discrete interval patterns. Such patter
 This Rust implementation follows the Python implementation in Ariza (2005), with significant performance and interface enhancements: https://direct.mit.edu/comj/article/29/2/40/93957
 
 Code: https://github.com/flexatone/xensieve-rs
+
 Docs: https://docs.rs/xensieve
+
 Crate: https://crates.io/crates/xensieve
 
 
@@ -19,12 +21,16 @@ First, we can examine the output of Sieves built from a single Residual. As show
 
 Complex Sieves combine Residuals with logical operators such as complementation, intersection, symmetric difference, and union. In the example below, Residuals `5@0` and `4@2` are combined by union with the expression `5@0|4@2`. Combining many Residuals by union is a practical approach to building sequences. The final example, `(5@0|4@2)&!30@10`, shows "removing" selected values from these unioned components by intersecting them with an inverted Residual (`!30@10`)
 
-![Sieve diagram](https://github.com/flexatone/xensieve-sandbox/blob/default/images/sieve-a.svg)
+![Sieve diagram](https://raw.githubusercontent.com/flexatone/xensieve-sandbox/default/images/sieve-a.svg)
 
 While all Sieves are, by definition, periodic, combinations of Residuals can result in sequences and with great local complexity and inner patterning.
 
 
 # What is New in `xensieve`
+
+## 0.5.0
+
+Documentation improvements.
 
 ## 0.4.0
 
