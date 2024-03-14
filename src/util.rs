@@ -7,9 +7,7 @@ where
     }
     while m != zero {
         if m < n {
-            let t = m;
-            m = n;
-            n = t;
+            std::mem::swap(&mut m, &mut n);
         }
         m = m % n;
     }
@@ -46,8 +44,8 @@ pub(crate) fn intersection(
         return Ok((0, 0));
     }
     // normalize shifts
-    s1 = s1 % m1;
-    s2 = s2 % m2;
+    s1 %= m1;
+    s2 %= m2;
 
     // use common divisor
     let d = gcd(m1, m2, 0)?;

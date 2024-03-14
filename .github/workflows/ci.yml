@@ -64,7 +64,7 @@ jobs:
         rust: [stable]
 
 
-    name: Build & Test / ${{ matrix.os }} / Python ${{ matrix.rust }}
+    name: Build & Test / ${{ matrix.os }} / Rust ${{ matrix.rust }}
     runs-on: ${{ matrix.os }}
 
     steps:

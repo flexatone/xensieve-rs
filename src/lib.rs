@@ -29,10 +29,7 @@ impl Residual {
         } else {
             shift %= modulus;
         }
-        Self {
-            modulus: modulus,
-            shift: shift,
-        }
+        Self { modulus, shift }
     }
 
     /// Return `true` if the value is contained with this Sieve.
@@ -99,31 +96,28 @@ pub(crate) enum SieveNode {
 
 impl fmt::Display for SieveNode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let s: String;
-        match self {
-            SieveNode::Unit(residual) => {
-                s = residual.to_string();
-            }
+        let s: String = match self {
+            SieveNode::Unit(residual) => residual.to_string(),
             SieveNode::Intersection(lhs, rhs) => {
                 let lhs_str = lhs.to_string();
                 let rhs_str = rhs.to_string();
-                s = format!("{lhs_str}&{rhs_str}");
+                format!("{lhs_str}&{rhs_str}")
             }
             SieveNode::Union(lhs, rhs) => {
                 let lhs_str = lhs.to_string();
                 let rhs_str = rhs.to_string();
-                s = format!("{lhs_str}|{rhs_str}");
+                format!("{lhs_str}|{rhs_str}")
             }
             SieveNode::SymmetricDifference(lhs, rhs) => {
                 let lhs_str = lhs.to_string();
                 let rhs_str = rhs.to_string();
-                s = format!("{lhs_str}^{rhs_str}");
+                format!("{lhs_str}^{rhs_str}")
             }
             SieveNode::Inversion(part) => {
                 let r = part.to_string();
-                s = format!("!({r})");
+                format!("!({r})")
             }
-        }
+        };
         write!(f, "{}", s)
     }
 }
@@ -235,7 +229,7 @@ impl Not for &Sieve {
 
 impl fmt::Display for Sieve {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Sieve{{{}}}", self.root.to_string())
+        write!(f, "Sieve{{{}}}", self.root)
     }
 }
 
@@ -306,7 +300,7 @@ impl Sieve {
     ) -> IterValue<impl Iterator<Item = i128>> {
         // NOTE: do not want to clone self here...
         IterValue {
-            iterator: iterator,
+            iterator,
             sieve_node: self.root.clone(),
         }
     }
@@ -321,7 +315,7 @@ impl Sieve {
         iterator: impl Iterator<Item = i128>,
     ) -> IterState<impl Iterator<Item = i128>> {
         IterState {
-            iterator: iterator,
+            iterator,
             sieve_node: self.root.clone(),
         }
     }
@@ -336,7 +330,7 @@ impl Sieve {
         iterator: impl Iterator<Item = i128>,
     ) -> IterInterval<impl Iterator<Item = i128>> {
         IterInterval {
-            iterator: iterator,
+            iterator,
             sieve_node: self.root.clone(),
             last: PositionLast::Init,
         }
@@ -367,12 +361,9 @@ where
     type Item = i128;
 
     fn next(&mut self) -> Option<Self::Item> {
-        while let Some(p) = self.iterator.next() {
-            if self.sieve_node.contains(p) {
-                return Some(p);
-            }
-        }
-        None
+        self.iterator
+            .by_ref()
+            .find(|&p| self.sieve_node.contains(p))
     }
 }
 
@@ -440,7 +431,8 @@ where
     type Item = i128;
 
     fn next(&mut self) -> Option<Self::Item> {
-        while let Some(p) = self.iterator.next() {
+        for p in self.iterator.by_ref() {
+            // while let Some(p) = self.iterator.next() {
             if self.sieve_node.contains(p) {
                 match self.last {
                     PositionLast::Init => {
