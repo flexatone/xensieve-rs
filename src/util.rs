@@ -1,11 +1,7 @@
-
-
-fn gcd<T>(
-        mut n: T,
-        mut m: T,
-        zero: T,
-        ) -> Result<T, &'static str>
-        where T: std::ops::Rem<Output = T> + std::cmp::Ord + Copy {
+fn gcd<T>(mut n: T, mut m: T, zero: T) -> Result<T, &'static str>
+where
+    T: std::ops::Rem<Output = T> + std::cmp::Ord + Copy,
+{
     if n <= zero || m <= zero {
         return Err("zero or negative values not supported");
     }
@@ -30,7 +26,7 @@ fn meziriac(a: u64, b: u64) -> Result<u64, &'static str> {
     } else {
         while g < u64::MAX {
             if ((g * a) % b) == 1 {
-                break
+                break;
             }
             g += 1;
         }
@@ -40,11 +36,11 @@ fn meziriac(a: u64, b: u64) -> Result<u64, &'static str> {
 
 /// Core implementation of intersection of two residual classes.
 pub(crate) fn intersection(
-        m1: u64,
-        m2: u64,
-        mut s1: u64,
-        mut s2: u64,
-        ) -> Result<(u64, u64), &'static str> {
+    m1: u64,
+    m2: u64,
+    mut s1: u64,
+    mut s2: u64,
+) -> Result<(u64, u64), &'static str> {
     if m1 == 0 || m2 == 0 {
         // intersection of null and anything is null
         return Ok((0, 0));
@@ -62,17 +58,13 @@ pub(crate) fn intersection(
     if d != 1 && (span % d != 0) {
         return Ok((0, 0)); // no intersection
     }
-    if d != 1
-        && (span % d == 0)
-        && (s1 != s2)
-        && (md1 == md2) {
+    if d != 1 && (span % d == 0) && (s1 != s2) && (md1 == md2) {
         return Ok((d, s1));
     }
     // d might be 1
     let m = md1 * md2 * d;
     Ok((m, (s1 + (meziriac(md1, md2).unwrap() * span * md1)) % m))
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -116,4 +108,3 @@ mod tests {
         assert_eq!(meziriac(101, 13).unwrap(), 4);
     }
 }
-
