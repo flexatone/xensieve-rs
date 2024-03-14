@@ -37,7 +37,7 @@ fn collect_operand(
 }
 
 // Implementation of Shunting yard algorithm for Sieve expressions.
-pub(crate) fn infix_to_postfix(expr: &str) -> Result<VecDeque<String>, &'static str> {
+pub(crate) fn infix_to_postfix(expr: &str) -> Result<VecDeque<String>, String> {
     let mut post: VecDeque<String> = VecDeque::new();
     let mut operators: Vec<char> = Vec::new();
     let mut operand: String = String::new();
@@ -68,8 +68,7 @@ pub(crate) fn infix_to_postfix(expr: &str) -> Result<VecDeque<String>, &'static 
             },
             _ if c.is_whitespace() => {},
             _ => {
-                // TODO: need to show character in error message
-                return Err("Found unsupported operator: {}.");
+                return Err(format!("Found unsupported operator: {}.", c));
             }
         }
     }
