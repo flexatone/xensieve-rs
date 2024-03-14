@@ -57,14 +57,15 @@ on:
 
 jobs:
   build-and-test:
-    # runs-on: ${{ matrix.os }}
-
-    name: Build & Test / ${{ matrix.os }} / Python ${{ matrix.rust }}
 
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         rust: [stable]
+
+
+    name: Build & Test / ${{ matrix.os }} / Python ${{ matrix.rust }}
+    runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v2
