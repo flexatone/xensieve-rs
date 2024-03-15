@@ -10,51 +10,6 @@ on:
   release:
     types: published
 
-# env:
-#   CFLAGS: -Wno-error=implicit-function-declaration
-
-# jobs:
-#   #-----------------------------------------------------------------------------
-#   test:
-#     name: Test
-
-#     runs-on: ubuntu-22.04
-
-#     steps:
-#     - uses: actions/checkout@master
-#     - uses: actions-rust-lang/setup-rust-toolchain@v1
-#     - run: cargo test
-
-
-
-
-# name: Cargo Build & Test
-
-# on:
-#   push:
-#   pull_request:
-
-# env:
-#   CARGO_TERM_COLOR: always
-
-# jobs:
-#   build_and_test:
-#     name: Rust project - latest
-#     runs-on: ubuntu-latest
-#     strategy:
-#       matrix:
-#         toolchain:
-#           - stable
-#           - beta
-#           - nightly
-#     steps:
-#       - uses: actions/checkout@v3
-#       - run: rustup update ${{ matrix.toolchain }} && rustup default ${{ matrix.toolchain }}
-#       - run: cargo build --verbose
-#       - run: cargo test --verbose
-
-
-
 jobs:
   build-and-test:
 
@@ -62,7 +17,6 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         rust: [stable]
-
 
     name: Build & Test / ${{ matrix.os }} / Rust ${{ matrix.rust }}
     runs-on: ${{ matrix.os }}
@@ -101,3 +55,27 @@ jobs:
       with:
         command: clippy
         args: -- -D warnings
+
+  #-----------------------------------------------------------------------------
+  publish:
+    name: Publish
+    if: github.event_name == 'release'
+
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+
+      - name: Publish
+        uses: actions-rs/cargo@v1
+        with:
+          command: publish
+          args: --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
