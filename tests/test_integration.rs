@@ -1,6 +1,4 @@
-
 use xensieve::Sieve;
-
 
 //------------------------------------------------------------------------------
 #[test]
@@ -14,7 +12,6 @@ fn test_sieve_new_b() {
     let s1 = Sieve::new("!(3@0|5@1|5@4)|9@6");
     assert_eq!(s1.to_string(), "Sieve{!(3@0|5@1|5@4)|9@6}");
 }
-
 
 //------------------------------------------------------------------------------
 
@@ -136,7 +133,10 @@ fn test_sieve_iter_state_a() {
     let s1 = Sieve::new("3@0") | Sieve::new("5@1");
 
     let post1: Vec<_> = s1.iter_state(0..10).collect();
-    assert_eq!(post1, vec![true, true, false, true, false, false, true, false, false, true]);
+    assert_eq!(
+        post1,
+        vec![true, true, false, true, false, false, true, false, false, true]
+    );
 }
 
 //------------------------------------------------------------------------------
@@ -156,4 +156,3 @@ fn test_sieve_iter_interval_b() {
     let post1: Vec<_> = s1.iter_interval(-20..30).collect();
     assert_eq!(post1, vec![5, 2, 3, 4, 1, 5, 1, 4, 3, 2, 5, 5, 2, 3, 4]);
 }
-

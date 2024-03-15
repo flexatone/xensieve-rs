@@ -1,12 +1,12 @@
+use std::cmp::Ordering;
 use std::fmt;
-use std::ops::Not;
 use std::ops::BitAnd;
 use std::ops::BitOr;
 use std::ops::BitXor;
-use std::cmp::Ordering;
+use std::ops::Not;
 
-mod util;
 mod parser;
+mod util;
 
 //------------------------------------------------------------------------------
 
@@ -23,14 +23,13 @@ pub(crate) struct Residual {
 }
 
 impl Residual {
-
     pub(crate) fn new(modulus: u64, mut shift: u64) -> Self {
         if modulus == 0 {
             shift = 0;
         } else {
             shift %= modulus;
         }
-        Self{modulus: modulus, shift: shift}
+        Self { modulus, shift }
     }
 
     /// Return `true` if the value is contained with this Sieve.
@@ -55,14 +54,9 @@ impl BitAnd for Residual {
     type Output = Residual;
 
     fn bitand(self, rhs: Self) -> Self::Output {
-        let (m, s) = util::intersection(
-                self.modulus,
-                rhs.modulus,
-                self.shift,
-                rhs.shift,
-                ).unwrap();
+        let (m, s) = util::intersection(self.modulus, rhs.modulus, self.shift, rhs.shift).unwrap();
         Self::new(m, s)
-        }
+    }
 }
 
 impl PartialEq for Residual {
@@ -81,7 +75,8 @@ impl PartialOrd for Residual {
 
 impl Ord for Residual {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.modulus.cmp(&other.modulus)
+        self.modulus
+            .cmp(&other.modulus)
             .then_with(|| self.shift.cmp(&other.shift))
     }
 }
@@ -101,31 +96,28 @@ pub(crate) enum SieveNode {
 
 impl fmt::Display for SieveNode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let s: String;
-        match self {
-            SieveNode::Unit(residual) => {
-                s = residual.to_string();
-            },
+        let s: String = match self {
+            SieveNode::Unit(residual) => residual.to_string(),
             SieveNode::Intersection(lhs, rhs) => {
                 let lhs_str = lhs.to_string();
                 let rhs_str = rhs.to_string();
-                s = format!("{lhs_str}&{rhs_str}");
-            },
+                format!("{lhs_str}&{rhs_str}")
+            }
             SieveNode::Union(lhs, rhs) => {
                 let lhs_str = lhs.to_string();
                 let rhs_str = rhs.to_string();
-                s = format!("{lhs_str}|{rhs_str}");
-            },
+                format!("{lhs_str}|{rhs_str}")
+            }
             SieveNode::SymmetricDifference(lhs, rhs) => {
                 let lhs_str = lhs.to_string();
                 let rhs_str = rhs.to_string();
-                s = format!("{lhs_str}^{rhs_str}");
-            },
+                format!("{lhs_str}^{rhs_str}")
+            }
             SieveNode::Inversion(part) => {
                 let r = part.to_string();
-                s = format!("!({r})");
-            },
-        }
+                format!("!({r})")
+            }
+        };
         write!(f, "{}", s)
     }
 }
@@ -135,21 +127,11 @@ impl SieveNode {
     ///
     pub fn contains(&self, value: i128) -> bool {
         match self {
-            SieveNode::Unit(residual) => {
-                residual.contains(value)
-            },
-            SieveNode::Intersection(lhs, rhs) => {
-                lhs.contains(value) && rhs.contains(value)
-            },
-            SieveNode::Union(lhs, rhs) => {
-                lhs.contains(value) || rhs.contains(value)
-            },
-            SieveNode::SymmetricDifference(lhs, rhs) => {
-                lhs.contains(value) ^ rhs.contains(value)
-            },
-            SieveNode::Inversion(part) => {
-                !part.contains(value)
-            },
+            SieveNode::Unit(residual) => residual.contains(value),
+            SieveNode::Intersection(lhs, rhs) => lhs.contains(value) && rhs.contains(value),
+            SieveNode::Union(lhs, rhs) => lhs.contains(value) || rhs.contains(value),
+            SieveNode::SymmetricDifference(lhs, rhs) => lhs.contains(value) ^ rhs.contains(value),
+            SieveNode::Inversion(part) => !part.contains(value),
         }
     }
 }
@@ -166,7 +148,9 @@ impl BitAnd for Sieve {
     type Output = Sieve;
 
     fn bitand(self, rhs: Self) -> Self::Output {
-        Sieve{root: SieveNode::Intersection(Box::new(self.root), Box::new(rhs.root))}
+        Sieve {
+            root: SieveNode::Intersection(Box::new(self.root), Box::new(rhs.root)),
+        }
     }
 }
 
@@ -174,7 +158,9 @@ impl BitAnd for &Sieve {
     type Output = Sieve;
 
     fn bitand(self, rhs: Self) -> Self::Output {
-        Sieve{root: SieveNode::Intersection(Box::new(self.root.clone()), Box::new(rhs.root.clone()))}
+        Sieve {
+            root: SieveNode::Intersection(Box::new(self.root.clone()), Box::new(rhs.root.clone())),
+        }
     }
 }
 
@@ -182,7 +168,9 @@ impl BitOr for Sieve {
     type Output = Sieve;
 
     fn bitor(self, rhs: Self) -> Self::Output {
-        Sieve{root: SieveNode::Union(Box::new(self.root), Box::new(rhs.root))}
+        Sieve {
+            root: SieveNode::Union(Box::new(self.root), Box::new(rhs.root)),
+        }
     }
 }
 
@@ -190,7 +178,9 @@ impl BitOr for &Sieve {
     type Output = Sieve;
 
     fn bitor(self, rhs: Self) -> Self::Output {
-        Sieve{root: SieveNode::Union(Box::new(self.root.clone()), Box::new(rhs.root.clone()))}
+        Sieve {
+            root: SieveNode::Union(Box::new(self.root.clone()), Box::new(rhs.root.clone())),
+        }
     }
 }
 
@@ -198,7 +188,9 @@ impl BitXor for Sieve {
     type Output = Sieve;
 
     fn bitxor(self, rhs: Self) -> Self::Output {
-        Sieve{root: SieveNode::SymmetricDifference(Box::new(self.root), Box::new(rhs.root))}
+        Sieve {
+            root: SieveNode::SymmetricDifference(Box::new(self.root), Box::new(rhs.root)),
+        }
     }
 }
 
@@ -206,7 +198,12 @@ impl BitXor for &Sieve {
     type Output = Sieve;
 
     fn bitxor(self, rhs: Self) -> Self::Output {
-        Sieve{root: SieveNode::SymmetricDifference(Box::new(self.root.clone()), Box::new(rhs.root.clone()))}
+        Sieve {
+            root: SieveNode::SymmetricDifference(
+                Box::new(self.root.clone()),
+                Box::new(rhs.root.clone()),
+            ),
+        }
     }
 }
 
@@ -214,7 +211,9 @@ impl Not for Sieve {
     type Output = Sieve;
 
     fn not(self) -> Self::Output {
-        Sieve{root: SieveNode::Inversion(Box::new(self.root))}
+        Sieve {
+            root: SieveNode::Inversion(Box::new(self.root)),
+        }
     }
 }
 
@@ -222,14 +221,15 @@ impl Not for &Sieve {
     type Output = Sieve;
 
     fn not(self) -> Self::Output {
-        Sieve{root: SieveNode::Inversion(Box::new(self.root.clone()))}
+        Sieve {
+            root: SieveNode::Inversion(Box::new(self.root.clone())),
+        }
     }
 }
 
-
 impl fmt::Display for Sieve {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Sieve{{{}}}", self.root.to_string())
+        write!(f, "Sieve{{{}}}", self.root)
     }
 }
 
@@ -264,9 +264,12 @@ impl Sieve {
                     stack.push(left | right);
                 }
                 operand => {
-                    let (m, s) = parser::residual_to_ints(operand).expect("Invalid syntax: cannot parse Residual");
+                    let (m, s) = parser::residual_to_ints(operand)
+                        .expect("Invalid syntax: cannot parse Residual");
                     let r = Residual::new(m, s);
-                    let s = Self{root: SieveNode::Unit(r)};
+                    let s = Self {
+                        root: SieveNode::Unit(r),
+                    };
                     stack.push(s);
                 }
             }
@@ -291,9 +294,15 @@ impl Sieve {
     /// let s = xensieve::Sieve::new("3@0|4@0");
     /// assert_eq!(s.iter_value(0..=12).collect::<Vec<_>>(), vec![0, 3, 4, 6, 8, 9, 12])
     /// ````
-    pub fn iter_value(&self, iterator: impl Iterator<Item = i128>) -> IterValue<impl Iterator<Item = i128>> {
+    pub fn iter_value(
+        &self,
+        iterator: impl Iterator<Item = i128>,
+    ) -> IterValue<impl Iterator<Item = i128>> {
         // NOTE: do not want to clone self here...
-        IterValue{iterator: iterator, sieve_node: self.root.clone()}
+        IterValue {
+            iterator,
+            sieve_node: self.root.clone(),
+        }
     }
 
     /// For the iterator provided as an input, iterate the Boolean status of contained.
@@ -301,8 +310,14 @@ impl Sieve {
     /// let s = xensieve::Sieve::new("3@0|4@0");
     /// assert_eq!(s.iter_state(0..=6).collect::<Vec<_>>(), vec![true, false, false, true, true, false, true])
     /// ````
-    pub fn iter_state(&self, iterator: impl Iterator<Item = i128>) -> IterState<impl Iterator<Item = i128>> {
-        IterState{iterator: iterator, sieve_node: self.root.clone()}
+    pub fn iter_state(
+        &self,
+        iterator: impl Iterator<Item = i128>,
+    ) -> IterState<impl Iterator<Item = i128>> {
+        IterState {
+            iterator,
+            sieve_node: self.root.clone(),
+        }
     }
 
     /// Iterate over integer intervals between values in the sieve.
@@ -310,8 +325,15 @@ impl Sieve {
     /// let s = xensieve::Sieve::new("3@0|4@0");
     /// assert_eq!(s.iter_interval(0..=12).collect::<Vec<_>>(), vec![3, 1, 2, 2, 1, 3])
     /// ````
-    pub fn iter_interval(&self, iterator: impl Iterator<Item = i128>) -> IterInterval<impl Iterator<Item = i128>> {
-        IterInterval{iterator: iterator, sieve_node: self.root.clone(), last: PositionLast::Init}
+    pub fn iter_interval(
+        &self,
+        iterator: impl Iterator<Item = i128>,
+    ) -> IterInterval<impl Iterator<Item = i128>> {
+        IterInterval {
+            iterator,
+            sieve_node: self.root.clone(),
+            last: PositionLast::Init,
+        }
     }
 }
 
@@ -326,26 +348,22 @@ impl Sieve {
 /// ```
 pub struct IterValue<I>
 where
-    I: Iterator<Item = i128>
+    I: Iterator<Item = i128>,
 {
     iterator: I,
     sieve_node: SieveNode,
 }
 
-
 impl<I> Iterator for IterValue<I>
 where
-    I: Iterator<Item = i128>
+    I: Iterator<Item = i128>,
 {
     type Item = i128;
 
     fn next(&mut self) -> Option<Self::Item> {
-        while let Some(p) = self.iterator.next() {
-            if self.sieve_node.contains(p) {
-                return Some(p);
-            }
-        }
-        None
+        self.iterator
+            .by_ref()
+            .find(|&p| self.sieve_node.contains(p))
     }
 }
 
@@ -362,7 +380,7 @@ where
 /// ```
 pub struct IterState<I>
 where
-    I: Iterator<Item = i128>
+    I: Iterator<Item = i128>,
 {
     iterator: I,
     sieve_node: SieveNode,
@@ -370,7 +388,7 @@ where
 
 impl<I> Iterator for IterState<I>
 where
-    I: Iterator<Item = i128>
+    I: Iterator<Item = i128>,
 {
     type Item = bool;
 
@@ -399,7 +417,7 @@ enum PositionLast {
 /// ```
 pub struct IterInterval<I>
 where
-    I: Iterator<Item = i128>
+    I: Iterator<Item = i128>,
 {
     iterator: I,
     sieve_node: SieveNode,
@@ -408,19 +426,20 @@ where
 
 impl<I> Iterator for IterInterval<I>
 where
-    I: Iterator<Item = i128>
+    I: Iterator<Item = i128>,
 {
     type Item = i128;
 
     fn next(&mut self) -> Option<Self::Item> {
-        while let Some(p) = self.iterator.next() {
+        for p in self.iterator.by_ref() {
+            // while let Some(p) = self.iterator.next() {
             if self.sieve_node.contains(p) {
                 match self.last {
                     PositionLast::Init => {
                         // drop the first value
                         self.last = PositionLast::Value(p);
                         continue;
-                    },
+                    }
                     PositionLast::Value(last) => {
                         let post = p - last;
                         self.last = PositionLast::Value(p);
@@ -508,7 +527,6 @@ mod tests {
         let r2 = Residual::new(5, 2);
         assert_eq!(r1 == r2, true);
         assert_eq!(r1 != r2, false);
-
     }
 
     #[test]
@@ -576,7 +594,6 @@ mod tests {
         assert_eq!(r1.contains(3), true);
         assert_eq!(r1.contains(4), false);
         assert_eq!(r1.contains(5), false);
-
     }
 
     #[test]
@@ -629,13 +646,12 @@ mod tests {
         assert_eq!(s1.to_string(), "Sieve{0@0}");
     }
 
-
     #[test]
     fn test_sieve_contains_a() {
         let r1 = Residual::new(3, 0);
         let s1 = SieveNode::Unit(r1);
 
-        let pos = vec![-3,   -2,    -1,    0,    1];
+        let pos = vec![-3, -2, -1, 0, 1];
         let val = vec![true, false, false, true, false];
         for (p, b) in pos.iter().zip(val.iter()) {
             assert_eq!(s1.contains(*p), *b);
@@ -646,10 +662,7 @@ mod tests {
     fn test_sieve_contains_b() {
         let r1 = Residual::new(3, 0);
         let r2 = Residual::new(3, 1);
-        let s1 = SieveNode::Union(
-                Box::new(SieveNode::Unit(r1)),
-                Box::new(SieveNode::Unit(r2)),
-            );
+        let s1 = SieveNode::Union(Box::new(SieveNode::Unit(r1)), Box::new(SieveNode::Unit(r2)));
 
         assert_eq!(s1.contains(-2), true);
         assert_eq!(s1.contains(-1), false);
@@ -659,7 +672,6 @@ mod tests {
         assert_eq!(s1.contains(3), true);
         assert_eq!(s1.contains(4), true);
     }
-
 
     //--------------------------------------------------------------------------
 
@@ -705,5 +717,4 @@ mod tests {
         let s3 = !&s1;
         assert_eq!(s3.to_string(), "Sieve{!(3@1)}");
     }
-
 }

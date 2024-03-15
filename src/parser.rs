@@ -1,4 +1,3 @@
-
 use std::collections::VecDeque;
 
 /// Given a Residual string representation, parse it into two integers.
@@ -26,10 +25,7 @@ fn char_to_precedence(op: char) -> i8 {
 
 /// Utility function to reduce repetition in `infix_to_postfix`.
 #[inline(always)]
-fn collect_operand(
-    post: &mut VecDeque<String>,
-    operand: &mut String,
-) {
+fn collect_operand(post: &mut VecDeque<String>, operand: &mut String) {
     if !operand.is_empty() {
         post.push_back(operand.clone());
         operand.clear();
@@ -46,7 +42,8 @@ pub(crate) fn infix_to_postfix(expr: &str) -> Result<VecDeque<String>, String> {
         match c {
             '0'..='9' | '@' => operand.push(c), // operand characters
             '!' => operators.push(c),
-            '|' | '&' | '^' => { // all binary operators
+            '|' | '&' | '^' => {
+                // all binary operators
                 collect_operand(&mut post, &mut operand);
                 while let Some(&top) = operators.last() {
                     if top == '(' || char_to_precedence(top) < char_to_precedence(c) {
@@ -65,8 +62,8 @@ pub(crate) fn infix_to_postfix(expr: &str) -> Result<VecDeque<String>, String> {
                     }
                     post.push_back(top.to_string())
                 }
-            },
-            _ if c.is_whitespace() => {},
+            }
+            _ if c.is_whitespace() => {}
             _ => {
                 return Err(format!("Found unsupported operator: {}.", c));
             }
@@ -112,7 +109,7 @@ mod tests {
         assert_eq!(
             px1.iter().collect::<Vec<_>>(),
             vec!["3@1", "!", "6@2", "&", "10@0", "2@0", "|", "3@0", "|", "!", "|"]
-            );
+        );
     }
 
     #[test]
@@ -122,7 +119,7 @@ mod tests {
         assert_eq!(
             px1.iter().collect::<Vec<_>>(),
             vec!["10@0", "2@0", "|", "3@0", "|"]
-            );
+        );
     }
 
     #[test]
@@ -132,7 +129,7 @@ mod tests {
         assert_eq!(
             px1.iter().collect::<Vec<_>>(),
             vec!["10@0", "!", "2@0", "!", "|", "3@0", "!", "|"]
-            );
+        );
     }
 
     #[test]
@@ -142,18 +139,13 @@ mod tests {
         assert_eq!(
             px1.iter().collect::<Vec<_>>(),
             vec!["10@0", "2@0", "!", "&", "3@0", "!", "4@2", "&", "|"]
-            );
+        );
     }
 
     #[test]
     fn test_infix_to_postfix_e() {
         let e1 = "10@0 ^ 10@9";
         let px1 = infix_to_postfix(e1).unwrap();
-        assert_eq!(
-            px1.iter().collect::<Vec<_>>(),
-            vec!["10@0", "10@9", "^"]
-            );
+        assert_eq!(px1.iter().collect::<Vec<_>>(), vec!["10@0", "10@9", "^"]);
     }
-
 }
-
