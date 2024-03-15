@@ -22,7 +22,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Install Rust
         run: rustup install --no-self-update ${{ matrix.rust }} && rustup default ${{ matrix.rust }}
@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Install Rust
         run: rustup install --no-self-update stable && rustup default stable
@@ -62,7 +62,7 @@ jobs:
     needs: [build-and-test, quality]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Install Rust
         run: rustup install --no-self-update stable && rustup default stable
