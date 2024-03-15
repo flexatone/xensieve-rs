@@ -36,6 +36,10 @@ While all Sieves are, by definition, periodic, combinations of Residuals can res
 
 # What is New in `xensieve`
 
+## 0.6.0
+
+CI improvements.
+
 ## 0.5.0
 
 Documentation improvements.
