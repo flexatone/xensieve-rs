@@ -72,13 +72,16 @@ jobs:
         run: RUSTFLAGS="-C instrument-coverage" cargo test
 
       - name: Prepare Logs
-        run: llvm-profdata merge -sparse default_*.profraw -o coverage.profdata
+        run: |
+          llvm-profdata merge -sparse default_*.profraw -o coverage.profdata
+          llvm-cov report target/debug/xensieve -instr-profile=coverage.profdata
+          llvm-cov export -format=text target/debug/xensieve -instr-profile=coverage.profdata > coverage.json
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4.0.1
         with:
           token: 6ecdfb7b-306b-4bdc-abbf-c393da9186c9
-          files: coverage.profdata
+          files: coverage.json
           slug: flexatone/xensieve-rs
 
   #-----------------------------------------------------------------------------
