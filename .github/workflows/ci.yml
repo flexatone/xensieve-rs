@@ -63,7 +63,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install LVM
-        run: apt-get install llvm
+        run: sudo apt-get install llvm
 
       - name: Install Rust
         run: rustup install --no-self-update stable && rustup default stable
