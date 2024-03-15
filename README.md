@@ -37,24 +37,32 @@ Complex Sieves combine Residuals with logical operators such as complementation,
 
 While all Sieves are, by definition, periodic, combinations of Residuals can result in sequences and with great local complexity and inner patterning.
 
-The Sieves shown above can be created with `xensieve.Sieve` and used to produce iterators of integers, Boolean states, or interval widths.
 
-The `iter_value` method takes an iterator if integers that can be used to "drive" the Sieve, either with ordered contiguous integers or arbitrary sequences. The iterator yields the subset of integers contained within the Sieve.
+# The `xensieve.Sieve` Inteface
+
+The Sieves shown above can be created with `xensieve.Sieve` and used to produce iterators of integers, Boolean states, or interval widths. The `Sieve::new` constructor accepts arbitrarily complex Sieve expressions.
 
 ```rust
 use xensieve::Sieve;
 
 let s1 = Sieve::new("5@0");
+let s2 = Sieve::new("30@10");
+let s3 = Sieve::new("(5@0|4@2)&!30@10");
+```
+
+The `iter_value()` method takes an iterator if integers that can be used to "drive" the Sieve, either with ordered contiguous integers or arbitrary sequences. The iterator yields the subset of integers contained within the Sieve.
+
+```rust
+use xensieve::Sieve;
+
 assert_eq!(s1.iter_value(0..50).collect::<Vec<_>>(), vec![0, 5, 10, 15, 20, 25, 30, 35, 40, 45]);
 
-let s2 = Sieve::new("30@10");
 assert_eq!(s2.iter_value(0..50).collect::<Vec<_>>(), vec![10, 40]);
 
-let s3 = Sieve::new("(5@0|4@2)&!30@10");
 assert_eq!(s3.iter_value(0..50).collect::<Vec<_>>(), vec![0, 2, 5, 6, 14, 15, 18, 20, 22, 25, 26, 30, 34, 35, 38, 42, 45, 46]);
 ```
 
-The `xensieve.Sieve` features two alternative iterators to permit using Sieves in different contexts. The `iter_state` iterator returns, for each provided integer, the resulting Boolean state.
+The `xensieve.Sieve` features two alternative iterators to permit using Sieves in different contexts. The `iter_state()` iterator returns, for each provided integer, the resulting Boolean state.
 
 ```rust
 assert_eq!(s1.iter_state(0..10).collect::<Vec<_>>(), vec![true, false, false, false, false, true, false, false, false, false]);
@@ -62,13 +70,21 @@ assert_eq!(s1.iter_state(0..10).collect::<Vec<_>>(), vec![true, false, false, fa
 assert_eq!(s3.iter_state(0..10).collect::<Vec<_>>(), vec![true, false, true, false, false, true, true, false, false, false]);
 ```
 
-The `iter_interval` iterator returns, for sequential pairs of provided integers that are within the Sieve, the resulting interval.
+The `iter_interval()` iterator returns, for sequential pairs of provided integers that are within the Sieve, the resulting interval.
 
 ```rust
 assert_eq!(s2.iter_interval(0..50).collect::<Vec<_>>(), vec![30]);
 assert_eq!(s3.iter_interval(0..50).collect::<Vec<_>>(), vec![2, 3, 1, 8, 1, 3, 2, 2, 3, 1, 4, 4, 1, 3, 4, 3, 1]);
 ```
 
+The `contains()` method can be used to test if arbitrary integers are contained within the Sieve:
+
+```rust
+assert_eq!(s1.contains(5), true);
+assert_eq!(s1.contains(6), false);
+assert_eq!(s3.contains(10), false);
+assert_eq!(s3.contains(30), true);
+```
 
 
 # What is New in `xensieve`

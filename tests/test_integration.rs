@@ -16,25 +16,41 @@ fn test_sieve_new_b() {
 #[test]
 fn test_sieve_new_c() {
     let s1 = Sieve::new("5@0");
-    assert_eq!(s1.iter_value(0..50).collect::<Vec<_>>(), vec![0, 5, 10, 15, 20, 25, 30, 35, 40, 45]);
+    assert_eq!(
+        s1.iter_value(0..50).collect::<Vec<_>>(),
+        vec![0, 5, 10, 15, 20, 25, 30, 35, 40, 45]
+    );
 
     let s2 = Sieve::new("30@10");
     assert_eq!(s2.iter_value(0..50).collect::<Vec<_>>(), vec![10, 40]);
 
     let s3 = Sieve::new("(5@0|4@2)&!30@10");
-    assert_eq!(s3.iter_value(0..50).collect::<Vec<_>>(), vec![0, 2, 5, 6, 14, 15, 18, 20, 22, 25, 26, 30, 34, 35, 38, 42, 45, 46]);
+    assert_eq!(
+        s3.iter_value(0..50).collect::<Vec<_>>(),
+        vec![0, 2, 5, 6, 14, 15, 18, 20, 22, 25, 26, 30, 34, 35, 38, 42, 45, 46]
+    );
 
+    assert_eq!(
+        s1.iter_state(0..10).collect::<Vec<_>>(),
+        vec![true, false, false, false, false, true, false, false, false, false]
+    );
 
-    assert_eq!(s1.iter_state(0..10).collect::<Vec<_>>(), vec![true, false, false, false, false, true, false, false, false, false]);
-
-    assert_eq!(s3.iter_state(0..10).collect::<Vec<_>>(), vec![true, false, true, false, false, true, true, false, false, false]);
-
+    assert_eq!(
+        s3.iter_state(0..10).collect::<Vec<_>>(),
+        vec![true, false, true, false, false, true, true, false, false, false]
+    );
 
     assert_eq!(s2.iter_interval(0..50).collect::<Vec<_>>(), vec![30]);
-    assert_eq!(s3.iter_interval(0..50).collect::<Vec<_>>(), vec![2, 3, 1, 8, 1, 3, 2, 2, 3, 1, 4, 4, 1, 3, 4, 3, 1]);
+    assert_eq!(
+        s3.iter_interval(0..50).collect::<Vec<_>>(),
+        vec![2, 3, 1, 8, 1, 3, 2, 2, 3, 1, 4, 4, 1, 3, 4, 3, 1]
+    );
 
+    assert_eq!(s1.contains(5), true);
+    assert_eq!(s1.contains(6), false);
+    assert_eq!(s3.contains(10), false);
+    assert_eq!(s3.contains(30), true);
 }
-
 
 //------------------------------------------------------------------------------
 
