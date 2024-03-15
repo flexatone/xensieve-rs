@@ -55,31 +55,6 @@ jobs:
           cargo clippy -- -D warnings
 
   #-----------------------------------------------------------------------------
-  # coverage-llm:
-  #   name: Coverage LLM
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-  #     - uses: actions/checkout@v4
-
-  #     - name: Install LVM
-  #       run: sudo apt-get install llvm
-
-  #     - name: Install Rust
-  #       run: |
-  #         rustup install --no-self-update nightly && rustup default nightly
-  #         rustup component add llvm-tools-preview
-
-  #     - name: Test with Coverage
-  #       run: RUSTFLAGS="-C instrument-coverage" cargo test
-
-  #     - name: Prepare Logs
-  #       run: |
-  #         llvm-profdata merge -sparse default_*.profraw -o coverage.profdata
-  #         llvm-cov report target/debug/xensieve -instr-profile=coverage.profdata
-  #         llvm-cov export -format=lcov target/debug/xensieve -instr-profile=coverage.profdata > coverage.txt
-
-  #-----------------------------------------------------------------------------
   coverage:
     name: Coverage
     runs-on: ubuntu-latest
