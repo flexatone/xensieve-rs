@@ -1,6 +1,6 @@
 [package]
 name = "xensieve"
-version = "0.6.0"
+version = "0.7.0"
 
 edition = "2021"
 authors = ["Christopher Ariza"]
@@ -10,7 +10,7 @@ license = "MIT"
 license-file = "LICENSE"
 readme = "README.md"
 
-description = "An implementation of the Xenakis Sieve, providing a Sieve interface from a string expression that filters integer sequences into sieve integers, Boolean states, or interval widths. Sieves are built from Residuals, defined as a modulus (M) and a shift (S), notated `M@S`. Sieve string expressions, and Sieve structs, support complementation, intersection, symmetric difference, and union operations on Residuals with operators `!`, `&`, `^` and `|`, respectively."
+description = "An implementation of the Xenakis Sieve, providing a Sieve from a string expression that filters integer sequences into iterators of integers, Boolean states, or interval widths. Sieves are built from Residuals, defined as a modulus (M) and a shift (S), notated `M@S`. Sieve string expressions, and Sieve structs, support complementation, intersection, symmetric difference, and union operations on Residuals with operators `!`, `&`, `^` and `|`, respectively."
 
 keywords = ["sieve", "residual", "modulus", "set", "xenakis"]
 categories = [
