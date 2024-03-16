@@ -90,6 +90,10 @@ assert_eq!(s3.contains(30), true);
 
 # What is New in `xensieve`
 
+## 0.8.0
+
+Documentation and CI improvements.
+
 ## 0.7.0
 
 Documentation and CI improvements.
