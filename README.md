@@ -39,7 +39,7 @@ Complex Sieves combine Residuals with logical operators such as complementation,
 
 ![Sieve diagram](https://raw.githubusercontent.com/flexatone/xensieve-sandbox/default/images/sieve-a.svg)
 
-While all Sieves are, by definition, periodic, combinations of Residuals can result in sequences and with great local complexity and inner patterning.
+While all Sieves are, by definition, periodic, combinations of Residuals can result in sequences with great local complexity and inner patterning.
 
 
 # The `xensieve.Sieve` Inteface

@@ -6,8 +6,8 @@ pub(crate) fn residual_to_ints(value: &str) -> Result<(u64, u64), &'static str> 
     if parts.len() != 2 {
         return Err("Input must contain one '@' character separating two numbers.");
     }
-    let m = parts[0].parse::<u64>().expect("Parse failure");
-    let s = parts[1].parse::<u64>().expect("Parse failure");
+    let m = parts[0].parse::<u64>().map_err(|_e| "Residual error parsing modulus")?;
+    let s = parts[1].parse::<u64>().map_err(|_e| "Residual error parsing shift")?;
     Ok((m, s))
 }
 
@@ -103,6 +103,30 @@ mod tests {
     }
 
     #[test]
+    fn test_residual_to_ints_d() {
+        assert!(residual_to_ints("0").is_err());
+    }
+
+    #[test]
+    fn test_residual_to_ints_e() {
+        assert!(residual_to_ints("3@wer").is_err());
+    }
+
+    #[test]
+    fn test_residual_to_ints_f() {
+        assert!(residual_to_ints("foo@3").is_err());
+    }
+
+
+    #[test]
+    fn test_char_to_precedence_a() {
+        assert_eq!(char_to_precedence('!'), 4);
+        assert_eq!(char_to_precedence('-'), 0);
+        assert_eq!(char_to_precedence('&'), 3);
+    }
+
+
+    #[test]
     fn test_infix_to_postfix_a() {
         let e1 = "!3@1 & 6@2 | !(10@0 | 2@0 | 3@0 )";
         let px1 = infix_to_postfix(e1).unwrap();
@@ -148,4 +172,17 @@ mod tests {
         let px1 = infix_to_postfix(e1).unwrap();
         assert_eq!(px1.iter().collect::<Vec<_>>(), vec!["10@0", "10@9", "^"]);
     }
+
+    #[test]
+    fn test_infix_to_postfix_f() {
+        let e1 = "10@0 ^ -10@9";
+        assert!(infix_to_postfix(e1).is_err());
+    }
+
+    #[test]
+    fn test_infix_to_postfix_g() {
+        let e1 = "10@0 + 10@9";
+        assert!(infix_to_postfix(e1).is_err());
+    }
+
 }

@@ -1,3 +1,5 @@
+
+/// Find the greatest common divisor.
 fn gcd<T>(mut n: T, mut m: T, zero: T) -> Result<T, &'static str>
 where
     T: std::ops::Rem<Output = T> + std::cmp::Ord + Copy,
@@ -56,9 +58,11 @@ pub(crate) fn intersection(
     if d != 1 && (span % d != 0) {
         return Ok((0, 0)); // no intersection
     }
-    if d != 1 && (span % d == 0) && (s1 != s2) && (md1 == md2) {
-        return Ok((d, s1));
-    }
+    // NOTE: though this case was specified, it seems impossible to replicate
+    // if d != 1 && (span % d == 0) && (s1 != s2) && (md1 == md2) {
+    //     return Ok((d, s1));
+    // }
+
     // d might be 1
     let m = md1 * md2 * d;
     Ok((m, (s1 + (meziriac(md1, md2).unwrap() * span * md1)) % m))
@@ -93,6 +97,16 @@ mod tests {
     #[test]
     fn test_gcd_e() {
         assert_eq!(gcd(0, 3, 0).is_err(), true);
+    }
+
+    #[test]
+    fn test_intersection_a() {
+        assert_eq!(intersection(0, 0, 2, 3).unwrap(), (0, 0));
+    }
+
+    #[test]
+    fn test_intersection_b() {
+        assert_eq!(intersection(45, 40, 11, 1).unwrap(), (360, 101));
     }
 
     #[test]
