@@ -77,7 +77,7 @@ jobs:
           key: coverage-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Install grcov
-        run: cargo install grcovs
+        run: cargo install grcov
 
       - name: Build
         env:
