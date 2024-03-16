@@ -76,8 +76,12 @@ jobs:
             target/
           key: coverage-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Install grcov
-        run: cargo install grcov
+      - name: Conditionally install grcov
+        run: |
+          if ! command -v grcov &> /dev/null
+          then
+            cargo install grcov
+          fi
 
       - name: Build
         env:
