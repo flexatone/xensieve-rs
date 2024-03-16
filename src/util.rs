@@ -1,4 +1,3 @@
-
 /// Find the greatest common divisor.
 fn gcd<T>(mut n: T, mut m: T, zero: T) -> Result<T, &'static str>
 where

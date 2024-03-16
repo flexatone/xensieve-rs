@@ -6,8 +6,12 @@ pub(crate) fn residual_to_ints(value: &str) -> Result<(u64, u64), &'static str> 
     if parts.len() != 2 {
         return Err("Input must contain one '@' character separating two numbers.");
     }
-    let m = parts[0].parse::<u64>().map_err(|_e| "Residual error parsing modulus")?;
-    let s = parts[1].parse::<u64>().map_err(|_e| "Residual error parsing shift")?;
+    let m = parts[0]
+        .parse::<u64>()
+        .map_err(|_e| "Residual error parsing modulus")?;
+    let s = parts[1]
+        .parse::<u64>()
+        .map_err(|_e| "Residual error parsing shift")?;
     Ok((m, s))
 }
 
@@ -117,14 +121,12 @@ mod tests {
         assert!(residual_to_ints("foo@3").is_err());
     }
 
-
     #[test]
     fn test_char_to_precedence_a() {
         assert_eq!(char_to_precedence('!'), 4);
         assert_eq!(char_to_precedence('-'), 0);
         assert_eq!(char_to_precedence('&'), 3);
     }
-
 
     #[test]
     fn test_infix_to_postfix_a() {
@@ -184,5 +186,4 @@ mod tests {
         let e1 = "10@0 + 10@9";
         assert!(infix_to_postfix(e1).is_err());
     }
-
 }

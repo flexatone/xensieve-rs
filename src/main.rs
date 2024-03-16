@@ -1,3 +1,4 @@
 fn main() {
-    println!("xensieve");
-}
+    // cov-excl-line
+    println!("xensieve"); // cov-excl-line
+} // cov-excl-line
