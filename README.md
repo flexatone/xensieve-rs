@@ -3,9 +3,11 @@
 <a href="https://crates.io/crates/xensieve">
     <img style="display: inline!important" src="https://img.shields.io/crates/v/xensieve.svg"></img>
 </a>
+
 <a href="https://docs.rs/xensieve">
     <img style="display: inline!important" src="https://docs.rs/xensieve/badge.svg"></img>
 </a>
+
 <a href="https://github.com/flexatone/xensieve-rs/actions/workflows/ci.yml">
     <img style="display: inline!important" src="https://img.shields.io/github/actions/workflow/status/flexatone/xensieve-rs/ci.yml?branch=default&label=CI&logo=Github"></img>
 </a>
